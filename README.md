@@ -2,10 +2,8 @@
 
 ## About
 
-This repository contains my weekly coursework for GBUS 562: AI Language Models at the University of Mary Washington.
-
-I'm a graduate student at the University of Mary Washington, pursuing an MS in AI in Business. I'm interested in how AI can improve the way businesses run day to day. That includes streamlining operations, automating repetitive work, and giving decision-makers clearer, faster insight. In this course, I want to build practical experience with language models and understand where they add real value in a business setting.
+This repository is for my GBUS 562 AI Language Models course. I'm currently working toward my MS in AI in Business, and I'm looking forward to getting more hands-on experience using AI tools like Claude Code and learning how I can apply these tools in everyday life and at work.
 
 ## Weekly Work
 
-1. Week 1: An AI-coded Tic-Tac-Toe game, built with Claude Code.
+1. Week 1: I used Claude Code to build a Tic-Tac-Toe game with two game modes (single-player and two-player). The game also has three difficulty levels and a scoreboard.
