@@ -6,4 +6,4 @@ This repository is for my GBUS 562 AI Language Models course. I'm currently work
 
 ## Weekly Work
 
-Week 1: I used Claude Code to build a Tic-Tac-Toe game with two game modes single-player and two-player. The game also has three difficulty levels and a scoreboard.
+Week 1: I used Claude Code to build a UMW themed Tic-Tac-Toe game with two game modes single-player and two-player. The game also has three difficulty levels and a scoreboard.
