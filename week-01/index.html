@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tic-Tac-Toe</title>
+<style>
+  :root {
+    --bg: #f2f0ea;
+    --bg-glow: #e6e1f5;
+    --surface: #ffffff;
+    --surface-2: #f7f5f0;
+    --text: #1c1f2b;
+    --muted: #61677a;
+    --line: #dcd8ce;
+    --x: #e2465b;
+    --o: #2f7bdb;
+    --accent: #5b47d6;
+    --win: #f2b705;
+    --shadow: 0 20px 45px rgba(30, 30, 60, 0.14);
+    --radius: 18px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1118;
+      --bg-glow: #1c1838;
+      --surface: #1a1d28;
+      --surface-2: #222634;
+      --text: #ebedf4;
+      --muted: #9aa1b5;
+      --line: #2e3344;
+      --x: #ff6b7d;
+      --o: #5aa2ff;
+      --accent: #8b7cff;
+      --win: #ffd23f;
+      --shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1118;
+    --bg-glow: #1c1838;
+    --surface: #1a1d28;
+    --surface-2: #222634;
+    --text: #ebedf4;
+    --muted: #9aa1b5;
+    --line: #2e3344;
+    --x: #ff6b7d;
+    --o: #5aa2ff;
+    --accent: #8b7cff;
+    --win: #ffd23f;
+    --shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: radial-gradient(circle at 50% -10%, var(--bg-glow), var(--bg) 60%) fixed, var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 28px 16px 40px;
+  }
+  main {
+    width: 100%;
+    max-width: 440px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  h1 {
+    margin: 0;
+    text-align: center;
+    font-size: clamp(1.9rem, 7vw, 2.5rem);
+    letter-spacing: -0.03em;
+  }
+  h1 .x { color: var(--x); }
+  h1 .o { color: var(--o); }
+
+  /* Segmented controls */
+  .settings { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .segmented {
+    display: inline-flex;
+    background: var(--surface);
+    border-radius: 999px;
+    padding: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
+  }
+  .segmented button {
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 8px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .segmented button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  .segmented button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .segmented.small button { font-size: 0.8rem; padding: 6px 14px; }
+  .difficulty { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.85rem; }
+  .difficulty[hidden] { display: none; }
+
+  /* Scoreboard */
+  .scores { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; }
+  .score {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 10px 12px;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .score.active { border-color: var(--accent); transform: translateY(-2px); }
+  .score .label { font-size: 0.8rem; color: var(--muted); font-weight: 600; }
+  .score .label b { font-size: 0.95rem; }
+  .score.sx .label b { color: var(--x); }
+  .score.so .label b { color: var(--o); }
+  .score .count { font-size: 1.6rem; font-weight: 750; font-variant-numeric: tabular-nums; }
+  .score.draws { min-width: 74px; }
+  .count.bump { animation: bump 0.45s ease; }
+  @keyframes bump { 40% { transform: scale(1.35); } }
+
+  .status {
+    min-height: 1.6em;
+    text-align: center;
+    font-size: 1.15rem;
+    font-weight: 650;
+  }
+
+  /* Board */
+  .board-wrap { position: relative; width: 100%; aspect-ratio: 1; }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    background: var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .cell {
+    border: 0;
+    border-radius: 12px;
+    background: var(--surface);
+    cursor: pointer;
+    padding: 14%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, transform 0.1s;
+    position: relative;
+  }
+  .cell:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+  .board:not(.locked) .cell:empty:hover { background: var(--surface-2); }
+  .board:not(.locked) .cell:empty:active { transform: scale(0.96); }
+  .board.locked .cell, .cell:not(:empty) { cursor: default; }
+
+  /* Ghost mark on hover */
+  .board:not(.locked) .cell:empty:hover::after {
+    content: attr(data-ghost);
+    font-size: clamp(2.5rem, 14vw, 4.5rem);
+    font-weight: 800;
+    opacity: 0.14;
+    color: var(--text);
+  }
+
+  .mark { width: 100%; height: 100%; overflow: visible; }
+  .mark * { fill: none; stroke-width: 13; stroke-linecap: round; }
+  .mark.x * { stroke: var(--x); stroke-dasharray: 80; stroke-dashoffset: 80; animation: draw 0.18s ease-out forwards; }
+  .mark.x line:nth-child(2) { animation-delay: 0.14s; }
+  .mark.o circle { stroke: var(--o); stroke-dasharray: 190; stroke-dashoffset: 190; animation: draw 0.32s ease-out forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+
+  .board.done .cell:not(.win) .mark { opacity: 0.25; transition: opacity 0.4s; }
+  .cell.win { animation: winPulse 0.8s ease-in-out 0.3s 2 alternate; background: color-mix(in srgb, var(--win) 22%, var(--surface)); }
+  @keyframes winPulse { to { transform: scale(1.06); } }
+
+  .strike { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .strike line {
+    stroke: var(--win);
+    stroke-width: 10;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--win) 70%, transparent));
+    animation: draw 0.4s ease-out forwards;
+  }
+
+  .board.draw { animation: shake 0.45s ease; }
+  @keyframes shake {
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+  }
+
+  /* Confetti */
+  .confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+  .confetti i {
+    position: absolute;
+    top: -12px;
+    width: 9px;
+    height: 14px;
+    border-radius: 2px;
+    animation: fall linear forwards;
+  }
+  @keyframes fall {
+    to { transform: translate(var(--dx), 105vh) rotate(var(--rot)); opacity: 0.9; }
+  }
+
+  /* Controls */
+  .controls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    font: inherit;
+    font-weight: 650;
+    border-radius: 12px;
+    padding: 11px 20px;
+    cursor: pointer;
+    border: 2px solid var(--accent);
+    background: var(--accent);
+    color: #fff;
+    transition: transform 0.1s, filter 0.15s;
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn:active { transform: scale(0.97); }
+  .btn.secondary { background: transparent; color: var(--accent); }
+
+  .help { color: var(--muted); font-size: 0.85rem; text-align: center; line-height: 1.5; margin: 0; }
+  kbd {
+    font-family: inherit;
+    background: var(--surface);
+    border-radius: 5px;
+    padding: 1px 6px;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0s !important; }
+    .confetti { display: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Tic-<span class="x">Tac</span>-<span class="o">Toe</span></h1>
+
+  <div class="settings">
+    <div class="segmented" role="group" aria-label="Game mode">
+      <button type="button" data-mode="cpu" aria-pressed="true">vs Computer</button>
+      <button type="button" data-mode="pvp" aria-pressed="false">2 Players</button>
+    </div>
+    <div class="difficulty" id="difficulty">
+      <span>Difficulty</span>
+      <div class="segmented small" role="group" aria-label="Difficulty">
+        <button type="button" data-level="easy" aria-pressed="false">Easy</button>
+        <button type="button" data-level="medium" aria-pressed="true">Medium</button>
+        <button type="button" data-level="hard" aria-pressed="false">Hard</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="scores">
+    <div class="score sx" id="scoreX">
+      <div class="label"><b>X</b> · <span id="nameX">You</span></div>
+      <div class="count" id="countX">0</div>
+    </div>
+    <div class="score draws">
+      <div class="label">Draws</div>
+      <div class="count" id="countDraw">0</div>
+    </div>
+    <div class="score so" id="scoreO">
+      <div class="label"><b>O</b> · <span id="nameO">Computer</span></div>
+      <div class="count" id="countO">0</div>
+    </div>
+  </div>
+
+  <div class="status" id="status" aria-live="polite"></div>
+
+  <div class="board-wrap">
+    <div class="board" id="board"></div>
+    <svg class="strike" id="strike" aria-hidden="true"></svg>
+  </div>
+
+  <div class="controls">
+    <button type="button" class="btn" id="restart">Restart Game</button>
+    <button type="button" class="btn secondary" id="resetScores">Reset Scores</button>
+  </div>
+
+  <p class="help">
+    Get three in a row &mdash; across, down, or diagonally &mdash; to win. X always moves first.<br>
+    Keyboard: <kbd>1</kbd>&ndash;<kbd>9</kbd> to play a square (top-left is 1), <kbd>R</kbd> to restart.
+  </p>
+</main>
+
+<script>
+  const LINES = [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8],
+    [0, 3, 6], [1, 4, 7], [2, 5, 8],
+    [0, 4, 8], [2, 4, 6]
+  ];
+  const MARKS = {
+    X: '<svg class="mark x" viewBox="0 0 100 100"><line x1="22" y1="22" x2="78" y2="78"/><line x1="78" y1="22" x2="22" y2="78"/></svg>',
+    O: '<svg class="mark o" viewBox="0 0 100 100"><circle cx="50" cy="50" r="29"/></svg>'
+  };
+  const HUMAN = 'X';
+  const COMPUTER = 'O';
+  const CPU_DELAY = 450;
+
+  const boardEl = document.getElementById('board');
+  const strikeEl = document.getElementById('strike');
+  const statusEl = document.getElementById('status');
+
+  let board, current, gameOver, busy, cpuTimer;
+  let mode = 'cpu';
+  let difficulty = 'medium';
+  const scores = { X: 0, O: 0, draw: 0 };
+
+  const cells = [];
+  for (let i = 0; i < 9; i++) {
+    const cell = document.createElement('button');
+    cell.type = 'button';
+    cell.className = 'cell';
+    cell.addEventListener('click', () => humanMove(i));
+    boardEl.appendChild(cell);
+    cells.push(cell);
+  }
+
+  function playerName(p) {
+    if (mode === 'cpu') return p === HUMAN ? 'You' : 'Computer';
+    return `Player ${p}`;
+  }
+
+  function newGame() {
+    clearTimeout(cpuTimer);
+    board = Array(9).fill(null);
+    current = 'X';
+    gameOver = false;
+    busy = false;
+    cells.forEach((cell, i) => {
+      cell.innerHTML = '';
+      cell.classList.remove('win');
+      cell.setAttribute('aria-label', `Square ${i + 1}, empty`);
+    });
+    strikeEl.innerHTML = '';
+    boardEl.classList.remove('done', 'draw');
+    updateUI();
+  }
+
+  function updateUI() {
+    document.getElementById('nameX').textContent = playerName('X');
+    document.getElementById('nameO').textContent = playerName('O');
+    document.getElementById('countX').textContent = scores.X;
+    document.getElementById('countO').textContent = scores.O;
+    document.getElementById('countDraw').textContent = scores.draw;
+    document.getElementById('scoreX').classList.toggle('active', !gameOver && current === 'X');
+    document.getElementById('scoreO').classList.toggle('active', !gameOver && current === 'O');
+    document.getElementById('difficulty').hidden = mode !== 'cpu';
+    if (!gameOver) {
+      if (mode === 'cpu') statusEl.textContent = current === HUMAN ? 'Your turn' : 'Computer is thinking…';
+      else statusEl.textContent = `Player ${current}'s turn`;
+    }
+    boardEl.classList.toggle('locked', gameOver || busy);
+    cells.forEach(cell => { cell.dataset.ghost = current; });
+  }
+
+  function findWinner(b) {
+    for (const line of LINES) {
+      const [a, c, d] = line;
+      if (b[a] && b[a] === b[c] && b[a] === b[d]) return { player: b[a], line };
+    }
+    return null;
+  }
+
+  function emptySquares(b) {
+    return b.reduce((acc, v, i) => (v ? acc : acc.concat(i)), []);
+  }
+
+  function humanMove(i) {
+    if (gameOver || busy || board[i]) return;
+    if (mode === 'cpu' && current === COMPUTER) return;
+    play(i);
+  }
+
+  function play(i) {
+    board[i] = current;
+    cells[i].innerHTML = MARKS[current];
+    cells[i].setAttribute('aria-label', `Square ${i + 1}, ${current}`);
+
+    const result = findWinner(board);
+    if (result) {
+      endGame(result);
+    } else if (board.every(Boolean)) {
+      endGame(null);
+    } else {
+      current = current === 'X' ? 'O' : 'X';
+      updateUI();
+      if (mode === 'cpu' && current === COMPUTER) {
+        busy = true;
+        updateUI();
+        cpuTimer = setTimeout(() => {
+          busy = false;
+          play(computerMove(board));
+        }, CPU_DELAY);
+      }
+    }
+  }
+
+  function endGame(result) {
+    gameOver = true;
+    boardEl.classList.add('done');
+    let counter;
+    if (result) {
+      scores[result.player]++;
+      counter = document.getElementById(`count${result.player}`);
+      result.line.forEach(i => cells[i].classList.add('win'));
+      drawStrike(result.line);
+      if (mode === 'cpu') {
+        statusEl.textContent = result.player === HUMAN ? 'You win! 🎉' : 'The computer wins this one.';
+        if (result.player === HUMAN) confetti();
+      } else {
+        statusEl.textContent = `Player ${result.player} wins! 🎉`;
+        confetti();
+      }
+    } else {
+      scores.draw++;
+      counter = document.getElementById('countDraw');
+      statusEl.textContent = "It's a draw!";
+      boardEl.classList.add('draw');
+    }
+    updateUI();
+    counter.classList.remove('bump');
+    void counter.offsetWidth;
+    counter.classList.add('bump');
+  }
+
+  // Draw a line through the centers of the first and last winning squares, extended a little past each end.
+  function drawStrike(line) {
+    const wrap = strikeEl.getBoundingClientRect();
+    const center = i => {
+      const r = cells[i].getBoundingClientRect();
+      return [r.left + r.width / 2 - wrap.left, r.top + r.height / 2 - wrap.top];
+    };
+    const [x1, y1] = center(line[0]);
+    const [x2, y2] = center(line[2]);
+    const ext = 0.16;
+    const dx = (x2 - x1) * ext, dy = (y2 - y1) * ext;
+    const len = Math.hypot(x2 - x1 + 2 * dx, y2 - y1 + 2 * dy);
+    strikeEl.setAttribute('viewBox', `0 0 ${wrap.width} ${wrap.height}`);
+    strikeEl.innerHTML = `<line x1="${x1 - dx}" y1="${y1 - dy}" x2="${x2 + dx}" y2="${y2 + dy}"
+      style="stroke-dasharray:${len};stroke-dashoffset:${len};animation-delay:0.2s"/>`;
+  }
+
+  function confetti() {
+    const layer = document.createElement('div');
+    layer.className = 'confetti';
+    const colors = ['var(--x)', 'var(--o)', 'var(--win)', 'var(--accent)'];
+    for (let i = 0; i < 60; i++) {
+      const p = document.createElement('i');
+      p.style.left = `${Math.random() * 100}%`;
+      p.style.background = colors[i % colors.length];
+      p.style.setProperty('--dx', `${(Math.random() - 0.5) * 200}px`);
+      p.style.setProperty('--rot', `${Math.random() * 720 - 360}deg`);
+      p.style.animationDuration = `${1.6 + Math.random() * 1.4}s`;
+      p.style.animationDelay = `${Math.random() * 0.4}s`;
+      layer.appendChild(p);
+    }
+    document.body.appendChild(layer);
+    setTimeout(() => layer.remove(), 3500);
+  }
+
+  /* ---------- Computer opponent ---------- */
+
+  function randomOf(list) {
+    return list[Math.floor(Math.random() * list.length)];
+  }
+
+  // A square that completes three in a row for `player`, or undefined.
+  function finishingMove(b, player) {
+    return emptySquares(b).find(i => {
+      b[i] = player;
+      const wins = findWinner(b);
+      b[i] = null;
+      return wins;
+    });
+  }
+
+  // Score from the computer's point of view: faster wins and slower losses score higher.
+  function minimax(b, turn, depth) {
+    const result = findWinner(b);
+    if (result) return result.player === COMPUTER ? 10 - depth : depth - 10;
+    const open = emptySquares(b);
+    if (open.length === 0) return 0;
+    let best = turn === COMPUTER ? -Infinity : Infinity;
+    for (const i of open) {
+      b[i] = turn;
+      const score = minimax(b, turn === 'X' ? 'O' : 'X', depth + 1);
+      b[i] = null;
+      best = turn === COMPUTER ? Math.max(best, score) : Math.min(best, score);
+    }
+    return best;
+  }
+
+  function perfectMove(b) {
+    let bestScore = -Infinity;
+    let choices = [];
+    for (const i of emptySquares(b)) {
+      b[i] = COMPUTER;
+      const score = minimax(b, HUMAN, 1);
+      b[i] = null;
+      if (score > bestScore) { bestScore = score; choices = [i]; }
+      else if (score === bestScore) choices.push(i);
+    }
+    return randomOf(choices);
+  }
+
+  function computerMove(b) {
+    const copy = b.slice();
+    const open = emptySquares(copy);
+    if (difficulty === 'easy') {
+      return randomOf(open);
+    }
+    if (difficulty === 'medium') {
+      // Takes a win or blocks one, otherwise prefers the center, then plays randomly.
+      const win = finishingMove(copy, COMPUTER);
+      if (win !== undefined) return win;
+      const block = finishingMove(copy, HUMAN);
+      if (block !== undefined) return block;
+      if (!copy[4]) return 4;
+      return randomOf(open);
+    }
+    return perfectMove(copy);
+  }
+
+  /* ---------- Controls ---------- */
+
+  function selectIn(group, btn) {
+    group.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
+  }
+
+  function resetScores() {
+    scores.X = 0;
+    scores.O = 0;
+    scores.draw = 0;
+  }
+
+  document.getElementById('restart').addEventListener('click', newGame);
+  document.getElementById('resetScores').addEventListener('click', () => {
+    resetScores();
+    updateUI();
+  });
+
+  document.querySelectorAll('[data-mode]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.mode === mode) return;
+      mode = btn.dataset.mode;
+      selectIn(btn.parentElement, btn);
+      resetScores();
+      newGame();
+    });
+  });
+
+  document.querySelectorAll('[data-level]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.level === difficulty) return;
+      difficulty = btn.dataset.level;
+      selectIn(btn.parentElement, btn);
+      resetScores();
+      newGame();
+    });
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key >= '1' && e.key <= '9') {
+      const i = Number(e.key) - 1;
+      cells[i].focus();
+      humanMove(i);
+    } else if (e.key === 'r' || e.key === 'R') {
+      newGame();
+    }
+  });
+
+  newGame();
+</script>
+</body>
+</html>
