@@ -3,142 +3,293 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tic-Tac-Toe</title>
+<title>UMW Tic-Tac-Toe</title>
 <style>
+  /* ===== Colors (UMW-inspired navy, gray, and white) ===== */
+  :root {
+    --navy-dark: #061630;
+    --navy: #0b2a55;
+    --navy-light: #1d4580;
+    --gray-dark: #5c6675;
+    --gray: #a9b3c1;
+    --gray-light: #dde2ea;
+    --white: #ffffff;
+    --screen: #03101f;
+    --glow: 0 0 3px rgba(255, 255, 255, 0.35);
+    --arcade-font: "Consolas", "Lucida Console", "Courier New", monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
   body {
     margin: 0;
+    min-height: 100vh;
     padding: 24px 16px;
-    background: #f4f4f4;
-    color: #222;
-    font-family: Arial, Helvetica, sans-serif;
-    text-align: center;
-  }
-
-  h1 {
-    margin: 0 0 16px;
-  }
-
-  /* Mode and difficulty dropdowns */
-  .settings {
     display: flex;
     justify-content: center;
-    flex-wrap: wrap;
-    gap: 16px;
-    margin-bottom: 16px;
+    align-items: flex-start;
+    background: var(--gray-light);
+    font-family: var(--arcade-font);
+    color: var(--white);
   }
-  select {
-    font-size: 1rem;
-    padding: 4px 8px;
+
+  /* ===== The arcade cabinet ===== */
+  .cabinet {
+    width: 100%;
+    max-width: 420px;
+    background: var(--navy);
+    border: 6px solid var(--gray);
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(6, 22, 48, 0.2);
+    overflow: hidden;
+  }
+
+  /* Marquee: the lit-up sign at the top */
+  .marquee {
+    background: var(--navy-dark);
+    border-bottom: 4px solid var(--gray);
+    padding: 16px 12px;
+    text-align: center;
+  }
+  .marquee h1 {
+    margin: 0;
+    font-size: clamp(1.2rem, 6vw, 1.6rem);
+    letter-spacing: 0.12em;
+    text-shadow: var(--glow);
+  }
+  .marquee h1 .star {
+    color: var(--gray);
   }
 
   /* Scoreboard */
   .scoreboard {
     display: flex;
-    justify-content: center;
-    gap: 24px;
-    margin-bottom: 12px;
-    font-size: 1.05rem;
+    justify-content: space-around;
+    padding: 14px 12px 4px;
+    font-weight: bold;
+    letter-spacing: 0.08em;
   }
-  .scoreboard strong {
-    font-size: 1.3rem;
+  .score-label {
+    color: var(--gray);
+  }
+  .score-value {
+    text-shadow: var(--glow);
+  }
+
+  /* Screen: the dark area that holds the game */
+  .screen {
+    position: relative;
+    margin: 12px 16px 18px;
+    padding: 16px;
+    background: var(--screen);
+    border: 4px solid var(--navy-dark);
+    border-radius: 14px;
+    box-shadow: inset 0 0 12px rgba(29, 69, 128, 0.35);
+  }
+  /* Faint horizontal lines like an old arcade monitor */
+  .screen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.04) 0px,
+      rgba(255, 255, 255, 0.04) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none;
+  }
+  .screen.tie-flicker {
+    animation: flicker 0.6s steps(2) 2;
   }
 
   #status {
-    font-size: 1.2rem;
+    text-align: center;
     font-weight: bold;
+    font-size: 1.15rem;
+    letter-spacing: 0.1em;
     min-height: 1.5em;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
+    text-shadow: var(--glow);
   }
 
   /* The 3x3 board */
   .board {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
-    width: 100%;
-    max-width: 330px;
-    margin: 0 auto 20px;
+    gap: 8px;
   }
   .cell {
     aspect-ratio: 1;
-    font-size: 3rem;
+    background: var(--navy-dark);
+    border: 2px solid var(--navy-light);
+    border-radius: 8px;
+    font-family: var(--arcade-font);
+    font-size: clamp(2.2rem, 12vw, 3.4rem);
     font-weight: bold;
-    background: #fff;
-    border: 2px solid #333;
-    border-radius: 6px;
     cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
   }
-  .cell:hover {
-    background: #eaeaea;
+  .cell:hover:empty {
+    background: var(--navy);
+    border-color: var(--gray);
   }
-  .cell.x {
-    color: #d32f2f;
+  .cell:focus-visible {
+    outline: 3px solid var(--white);
+    outline-offset: 2px;
   }
+  /* X and O are drawn as shapes (SVG) so they fill the square */
+  .cell.x,
   .cell.o {
-    color: #1565c0;
+    padding: 10%;
+    animation: pop 0.2s ease-out;
+  }
+  .mark {
+    display: block;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke-width: 16;
+    stroke-linecap: round;
+  }
+  .cell.x .mark {
+    stroke: var(--white);
+    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.35));
+  }
+  .cell.o .mark {
+    stroke: var(--gray-light);
+    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.35));
   }
   .cell.win {
-    background: #fff3a0;
+    background: var(--navy-light);
+    border-color: var(--white);
+    animation: flash 0.5s steps(2) 4;
+  }
+
+  /* ===== Control panel (bottom of the cabinet) ===== */
+  .controls {
+    background: var(--gray-dark);
+    border-top: 4px solid var(--gray);
+    padding: 16px 12px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .button-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .arcade-btn {
+    font-family: var(--arcade-font);
+    font-weight: bold;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    padding: 9px 14px;
+    color: var(--white);
+    background: var(--navy);
+    border: 2px solid var(--gray);
+    border-radius: 999px;
+    box-shadow: 0 4px 0 var(--navy-dark);
+    cursor: pointer;
+  }
+  .arcade-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--navy-dark);
+  }
+  /* The selected mode or difficulty is lit up in white */
+  .arcade-btn.selected {
+    background: var(--white);
+    color: var(--navy);
+    border-color: var(--white);
+  }
+  .arcade-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+  .arcade-btn:focus-visible {
+    outline: 3px solid var(--white);
+    outline-offset: 2px;
   }
 
   #restart {
+    width: 120px;
+    height: 56px;
     font-size: 1rem;
-    padding: 10px 24px;
-    background: #333;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
+    background: var(--white);
+    color: var(--navy);
+    border: 3px solid var(--gray);
+    box-shadow: 0 5px 0 var(--navy-dark);
   }
-  #restart:hover {
-    background: #555;
+
+  /* ===== Animations ===== */
+  @keyframes pop {
+    from { transform: scale(0.5); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+  @keyframes flash {
+    50% { background: var(--navy-dark); }
+  }
+  @keyframes flicker {
+    50% { opacity: 0.55; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cell, .screen { animation: none !important; }
   }
 </style>
 </head>
 <body>
 
-<h1>Tic-Tac-Toe</h1>
+<div class="cabinet">
 
-<div class="settings">
-  <label>
-    Mode:
-    <select id="mode">
-      <option value="computer">Player vs. Computer</option>
-      <option value="pvp">Player vs. Player</option>
-    </select>
-  </label>
-  <label id="difficultyLabel">
-    Difficulty:
-    <select id="difficulty">
-      <option value="easy">Easy</option>
-      <option value="medium" selected>Medium</option>
-      <option value="hard">Hard</option>
-    </select>
-  </label>
+  <div class="marquee">
+    <h1><span class="star">&#9733;</span> UMW TIC-TAC-TOE <span class="star">&#9733;</span></h1>
+  </div>
+
+  <div class="scoreboard">
+    <div><span class="score-label">X:</span> <span class="score-value" id="scoreX">00</span></div>
+    <div><span class="score-label">TIES:</span> <span class="score-value" id="scoreTie">00</span></div>
+    <div><span class="score-label">O:</span> <span class="score-value" id="scoreO">00</span></div>
+  </div>
+
+  <div class="screen" id="screen">
+    <div id="status" aria-live="polite"></div>
+
+    <!-- The 9 squares. data-index tells JavaScript which square was clicked (0-8). -->
+    <div class="board">
+      <button class="cell" data-index="0" aria-label="Square 1"></button>
+      <button class="cell" data-index="1" aria-label="Square 2"></button>
+      <button class="cell" data-index="2" aria-label="Square 3"></button>
+      <button class="cell" data-index="3" aria-label="Square 4"></button>
+      <button class="cell" data-index="4" aria-label="Square 5"></button>
+      <button class="cell" data-index="5" aria-label="Square 6"></button>
+      <button class="cell" data-index="6" aria-label="Square 7"></button>
+      <button class="cell" data-index="7" aria-label="Square 8"></button>
+      <button class="cell" data-index="8" aria-label="Square 9"></button>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="button-row">
+      <button class="arcade-btn mode-btn selected" data-mode="computer">1P VS CPU</button>
+      <button class="arcade-btn mode-btn" data-mode="pvp">2 PLAYER</button>
+    </div>
+    <div class="button-row">
+      <button class="arcade-btn level-btn" data-level="easy">EASY</button>
+      <button class="arcade-btn level-btn selected" data-level="medium">MED</button>
+      <button class="arcade-btn level-btn" data-level="hard">HARD</button>
+    </div>
+    <button class="arcade-btn" id="restart">RESTART</button>
+  </div>
+
 </div>
-
-<div class="scoreboard">
-  <div><span id="nameX">You (X)</span>: <strong id="scoreX">0</strong></div>
-  <div>Ties: <strong id="scoreTie">0</strong></div>
-  <div><span id="nameO">Computer (O)</span>: <strong id="scoreO">0</strong></div>
-</div>
-
-<div id="status"></div>
-
-<!-- The 9 squares. data-index tells JavaScript which square was clicked (0-8). -->
-<div class="board">
-  <button class="cell" data-index="0"></button>
-  <button class="cell" data-index="1"></button>
-  <button class="cell" data-index="2"></button>
-  <button class="cell" data-index="3"></button>
-  <button class="cell" data-index="4"></button>
-  <button class="cell" data-index="5"></button>
-  <button class="cell" data-index="6"></button>
-  <button class="cell" data-index="7"></button>
-  <button class="cell" data-index="8"></button>
-</div>
-
-<button id="restart">Restart Game</button>
 
 <script>
   // ===== Game data =====
@@ -153,21 +304,29 @@
     [0, 4, 8], [2, 4, 6]             // diagonals
   ];
 
+  // The X and O shapes, drawn with SVG lines and circles on a 100x100 grid.
+  const SHAPES = {
+    X: '<svg class="mark" viewBox="0 0 100 100"><line x1="15" y1="15" x2="85" y2="85"/><line x1="85" y1="15" x2="15" y2="85"/></svg>',
+    O: '<svg class="mark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="36"/></svg>'
+  };
+
+  // In 1P vs CPU mode, you are X and the computer is O.
+  const HUMAN = "X";
+  const COMPUTER = "O";
+
   let board = [];            // 9 slots, each "X", "O", or "" (empty)
   let currentPlayer = "X";   // whose turn it is; X always goes first
   let gameOver = false;
+  let mode = "computer";     // "computer" or "pvp"
+  let difficulty = "medium"; // "easy", "medium", or "hard"
   let scores = { X: 0, O: 0, tie: 0 };
-
-  // In Player vs. Computer mode, you are X and the computer is O.
-  const HUMAN = "X";
-  const COMPUTER = "O";
 
   // ===== Page elements =====
   const cells = document.querySelectorAll(".cell");
   const statusText = document.getElementById("status");
-  const modeSelect = document.getElementById("mode");
-  const difficultySelect = document.getElementById("difficulty");
-  const difficultyLabel = document.getElementById("difficultyLabel");
+  const screen = document.getElementById("screen");
+  const modeButtons = document.querySelectorAll(".mode-btn");
+  const levelButtons = document.querySelectorAll(".level-btn");
 
   // ===== Starting and restarting =====
 
@@ -177,24 +336,19 @@
     currentPlayer = "X";
     gameOver = false;
 
-    cells.forEach(function (cell) {
-      cell.textContent = "";
+    cells.forEach(function (cell, index) {
+      cell.innerHTML = "";
       cell.classList.remove("x", "o", "win");
+      cell.setAttribute("aria-label", "Square " + (index + 1));
     });
+    screen.classList.remove("tie-flicker");
 
     updateStatus();
   }
 
-  // Sets all scores back to zero and updates the names on the scoreboard.
+  // Sets all scores back to zero.
   function resetScores() {
     scores = { X: 0, O: 0, tie: 0 };
-    if (isComputerMode()) {
-      document.getElementById("nameX").textContent = "You (X)";
-      document.getElementById("nameO").textContent = "Computer (O)";
-    } else {
-      document.getElementById("nameX").textContent = "Player X";
-      document.getElementById("nameO").textContent = "Player O";
-    }
     updateScoreboard();
   }
 
@@ -209,8 +363,8 @@
 
     makeMove(index);
 
-    // In computer mode, the computer answers right after your move.
-    if (isComputerMode() && !gameOver) {
+    // In 1P vs CPU mode, the computer answers right after your move.
+    if (mode === "computer" && !gameOver) {
       makeMove(chooseComputerMove());
     }
   }
@@ -219,8 +373,9 @@
   // If the game isn't over, it switches to the other player.
   function makeMove(index) {
     board[index] = currentPlayer;
-    cells[index].textContent = currentPlayer;
+    cells[index].innerHTML = SHAPES[currentPlayer];
     cells[index].classList.add(currentPlayer.toLowerCase());
+    cells[index].setAttribute("aria-label", "Square " + (index + 1) + ", " + currentPlayer);
 
     const winningLine = findWinningLine(board);
 
@@ -242,7 +397,8 @@
     updateScoreboard();
 
     if (result === "tie") {
-      statusText.textContent = "It's a tie!";
+      statusText.textContent = "TIE GAME!";
+      screen.classList.add("tie-flicker");
       return;
     }
 
@@ -250,12 +406,7 @@
     line.forEach(function (index) {
       cells[index].classList.add("win");
     });
-
-    if (isComputerMode()) {
-      statusText.textContent = result === HUMAN ? "You win!" : "The computer wins!";
-    } else {
-      statusText.textContent = "Player " + result + " wins!";
-    }
+    statusText.textContent = result + " WINS!";
   }
 
   // ===== Checking the board =====
@@ -292,9 +443,8 @@
 
   // Picks the computer's move based on the chosen difficulty.
   function chooseComputerMove() {
-    const level = difficultySelect.value;
-    if (level === "easy") return easyMove();
-    if (level === "medium") return mediumMove();
+    if (difficulty === "easy") return easyMove();
+    if (difficulty === "medium") return mediumMove();
     return hardMove();
   }
 
@@ -304,16 +454,13 @@
     return empty[Math.floor(Math.random() * empty.length)];
   }
 
-  // Medium: win if possible, block the player if needed,
-  // otherwise take the center, otherwise pick randomly.
+  // Medium: win if possible, block the player if needed, otherwise pick randomly.
   function mediumMove() {
     const winMove = findMoveThatWins(COMPUTER);
     if (winMove !== null) return winMove;
 
     const blockMove = findMoveThatWins(HUMAN);
     if (blockMove !== null) return blockMove;
-
-    if (board[4] === "") return 4;
 
     return easyMove();
   }
@@ -373,24 +520,23 @@
 
   // ===== Updating the screen =====
 
-  function isComputerMode() {
-    return modeSelect.value === "computer";
-  }
-
   // Shows whose turn it is.
   function updateStatus() {
-    if (isComputerMode()) {
-      statusText.textContent = "Your turn (X)";
-    } else {
-      statusText.textContent = "Player " + currentPlayer + "'s turn";
-    }
+    statusText.textContent = currentPlayer + "'S TURN";
   }
 
-  // Copies the scores onto the page.
+  // Copies the scores onto the scoreboard as two digits, like "03".
   function updateScoreboard() {
-    document.getElementById("scoreX").textContent = scores.X;
-    document.getElementById("scoreO").textContent = scores.O;
-    document.getElementById("scoreTie").textContent = scores.tie;
+    document.getElementById("scoreX").textContent = String(scores.X).padStart(2, "0");
+    document.getElementById("scoreO").textContent = String(scores.O).padStart(2, "0");
+    document.getElementById("scoreTie").textContent = String(scores.tie).padStart(2, "0");
+  }
+
+  // Lights up the chosen button in a group and turns the others off.
+  function selectButton(buttons, chosen) {
+    buttons.forEach(function (button) {
+      button.classList.toggle("selected", button === chosen);
+    });
   }
 
   // ===== Connecting buttons to functions =====
@@ -403,17 +549,32 @@
 
   document.getElementById("restart").addEventListener("click", startNewGame);
 
-  // Changing the mode or difficulty starts a fresh game with fresh scores.
-  modeSelect.addEventListener("change", function () {
-    // The difficulty setting only matters when playing the computer.
-    difficultyLabel.style.display = isComputerMode() ? "" : "none";
-    resetScores();
-    startNewGame();
+  // Changing the mode starts a fresh game with fresh scores.
+  modeButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      if (button.dataset.mode === mode) return;
+      mode = button.dataset.mode;
+      selectButton(modeButtons, button);
+
+      // The difficulty buttons only matter when playing the computer.
+      levelButtons.forEach(function (levelButton) {
+        levelButton.disabled = mode === "pvp";
+      });
+
+      resetScores();
+      startNewGame();
+    });
   });
 
-  difficultySelect.addEventListener("change", function () {
-    resetScores();
-    startNewGame();
+  // Changing the difficulty also starts a fresh game with fresh scores.
+  levelButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      if (button.dataset.level === difficulty) return;
+      difficulty = button.dataset.level;
+      selectButton(levelButtons, button);
+      resetScores();
+      startNewGame();
+    });
   });
 
   // Set up the first game when the page loads.
