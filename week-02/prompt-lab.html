@@ -1,0 +1,863 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The page may only send data to Anthropic, so the API key can't go anywhere else -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src https://api.anthropic.com; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<title>Prompt Lab</title>
+<style>
+  /* ===== Colors and fonts (charcoal, graphite, off-white, and subtle gold) ===== */
+  :root {
+    --charcoal-dark: #1f2124;
+    --charcoal: #2a2d31;
+    --graphite: #4b5057;
+    --graphite-light: #6a6f76;
+    --mist: #c9c9c5;
+    --off-white: #f6f4ef;
+    --paper: #fcfbf8;
+    --line: #dfdcd4;
+    --gold: #c0a062;
+    --gold-dark: #8a6d3b;
+    --error: #f2b8ae;
+    --lab-font: "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background: var(--off-white);
+    font-family: var(--lab-font);
+    font-size: 15px;
+    color: var(--charcoal);
+  }
+
+  /* ===== Header: product name and model ===== */
+  .top-bar {
+    flex: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px 24px;
+    padding: 14px 24px;
+    background: var(--charcoal-dark);
+    border-bottom: 1px solid var(--gold);
+    color: var(--off-white);
+  }
+  .top-bar h1 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .model {
+    font-size: 0.8rem;
+    color: var(--mist);
+  }
+  #modelName {
+    margin-left: 6px;
+    font-weight: 600;
+    color: var(--off-white);
+  }
+
+  /* Two panels: inputs on the left, conversation on the right */
+  .panels {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 380px minmax(0, 1fr);
+  }
+
+  /* ===== Left panel: API key, system prompt, and your prompt ===== */
+  .controls {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 24px;
+    overflow-y: auto;
+    background: var(--charcoal);
+    color: var(--off-white);
+  }
+  #settingsToggle {
+    display: none;
+  }
+  .settings-fields {
+    flex: 1 1 0;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .settings-fields[hidden] {
+    display: none;
+  }
+  .field-grow {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .prompt-section {
+    flex: 1 1 0;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+  }
+  .field-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--off-white);
+  }
+  .key-row {
+    display: flex;
+    gap: 8px;
+  }
+  .key-row input {
+    flex: 1;
+    min-width: 0;
+  }
+  .help {
+    margin: 8px 0 0;
+    font-size: 0.75rem;
+    line-height: 1.45;
+    color: var(--mist);
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--charcoal-dark);
+    border: 1px solid var(--graphite);
+    border-radius: 6px;
+    font-family: var(--lab-font);
+    font-size: 0.9rem;
+    color: var(--off-white);
+  }
+  textarea {
+    flex: 1;
+    min-height: 90px;
+    resize: none;
+    line-height: 1.5;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--mist);
+    opacity: 0.7;
+  }
+  input:focus-visible,
+  textarea:focus-visible,
+  .controls button:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 1px;
+  }
+  textarea:disabled {
+    opacity: 0.6;
+  }
+
+  /* ===== Buttons ===== */
+  button {
+    padding: 9px 16px;
+    background: transparent;
+    border: 1px solid var(--graphite-light);
+    border-radius: 6px;
+    font-family: var(--lab-font);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: inherit;
+    cursor: pointer;
+  }
+  button:hover:not(:disabled) {
+    border-color: var(--gold);
+  }
+  button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  button:focus-visible {
+    outline: 2px solid var(--gold-dark);
+    outline-offset: 2px;
+  }
+  .send-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .send-row .help {
+    margin: 0;
+  }
+  #sendButton {
+    flex: none;
+    min-width: 96px;
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--charcoal-dark);
+  }
+  #sendButton:hover {
+    background: #cdb077;
+  }
+  #sendButton.stopping {
+    background: transparent;
+    border-color: var(--gold);
+    color: var(--off-white);
+  }
+
+  .error {
+    margin: 12px 0 0;
+    padding: 10px 12px;
+    border: 1px solid var(--error);
+    border-radius: 6px;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: var(--error);
+  }
+  .error[hidden] {
+    display: none;
+  }
+
+  /* ===== Right panel: conversation ===== */
+  .conversation {
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--paper);
+  }
+  .conversation-header {
+    flex: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+    padding: 14px 32px;
+    border-bottom: 1px solid var(--line);
+  }
+  .conversation-header h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .conversation-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chat {
+    flex: 1;
+    min-height: 0;
+    padding: 28px 32px;
+    overflow-y: auto;
+  }
+  .chat > * {
+    max-width: 860px;
+  }
+  .empty-chat {
+    margin-top: 0;
+    margin-bottom: 0;
+    line-height: 1.6;
+    color: var(--graphite);
+  }
+  .message {
+    margin-bottom: 24px;
+  }
+  .message-label {
+    margin-bottom: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--graphite);
+  }
+  .message-text {
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .message-you .message-text {
+    padding: 12px 16px;
+    background: var(--off-white);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+  .message-claude .message-text {
+    padding: 2px 0 2px 16px;
+    border-left: 2px solid var(--gold);
+  }
+  .message-text.waiting {
+    font-style: italic;
+    color: var(--graphite);
+  }
+  .message-note {
+    margin-top: 6px;
+    font-size: 0.78rem;
+    color: var(--graphite);
+  }
+  .system-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    font-size: 0.75rem;
+    color: var(--graphite);
+  }
+  .system-divider::before,
+  .system-divider::after {
+    content: "";
+    flex: 1;
+    border-top: 1px solid var(--line);
+  }
+
+  /* ===== Narrow screens: settings collapse, conversation sits above your prompt ===== */
+  @media (max-width: 800px) {
+    .top-bar {
+      padding: 10px 16px;
+    }
+    .panels {
+      display: flex;
+      flex-direction: column;
+    }
+    .controls {
+      display: contents;
+    }
+    #settingsToggle {
+      order: 1;
+      flex: none;
+      display: block;
+      padding: 10px 16px;
+      background: var(--charcoal);
+      border: none;
+      border-radius: 0;
+      text-align: left;
+      color: var(--off-white);
+    }
+    .settings-fields {
+      order: 2;
+      flex: none;
+      min-height: 0;
+      max-height: 45vh;
+      overflow-y: auto;
+      padding: 4px 16px 16px;
+      background: var(--charcoal);
+      color: var(--off-white);
+    }
+    .conversation {
+      order: 3;
+      flex: 1;
+    }
+    .conversation-header {
+      padding: 10px 16px;
+    }
+    .chat {
+      padding: 16px;
+    }
+    .prompt-section {
+      order: 4;
+      flex: none;
+      min-height: 0;
+      padding: 12px 16px;
+      background: var(--charcoal);
+      color: var(--off-white);
+    }
+    #messageInput {
+      flex: none;
+      height: 64px;
+      min-height: 0;
+    }
+    #systemInput {
+      flex: none;
+      height: 110px;
+    }
+  }
+</style>
+</head>
+<body>
+<header class="top-bar">
+  <h1>Prompt Lab</h1>
+  <div class="model">Model<span id="modelName"></span></div>
+</header>
+
+<div class="panels">
+  <aside class="controls">
+    <button id="settingsToggle" type="button" aria-expanded="false" aria-controls="settingsFields">Show API Key and System Prompt</button>
+
+    <div id="settingsFields" class="settings-fields">
+      <section>
+        <label class="field-label" for="keyInput">API Key</label>
+        <div class="key-row">
+          <input id="keyInput" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="sk-ant-...">
+          <button id="showKeyButton" type="button">Show</button>
+        </div>
+        <p class="help">Kept in this page's memory only and sent only to Anthropic. Enter it again each session.</p>
+      </section>
+
+      <section class="field-grow">
+        <label class="field-label" for="systemInput">System Prompt</label>
+        <textarea id="systemInput" placeholder="Optional instructions for Claude"></textarea>
+        <p class="help">Changes apply from your next message.</p>
+      </section>
+    </div>
+
+    <section class="prompt-section">
+      <label class="field-label" for="messageInput">Your Prompt</label>
+      <textarea id="messageInput" placeholder="Type your message"></textarea>
+      <p id="error" class="error" role="alert" hidden></p>
+      <div class="send-row">
+        <p class="help">Enter to send. Shift+Enter for a new line.</p>
+        <button id="sendButton" type="button">Send</button>
+      </div>
+    </section>
+  </aside>
+
+  <main class="conversation">
+    <div class="conversation-header">
+      <h2>Conversation</h2>
+      <div class="conversation-buttons">
+        <button id="newButton" type="button">New Conversation</button>
+        <button id="exportButton" type="button" disabled>Export Markdown</button>
+      </div>
+    </div>
+    <div id="chat" class="chat" role="log" aria-label="Conversation"></div>
+  </main>
+</div>
+
+<script>
+  // ===== Settings =====
+  const MODEL = "claude-sonnet-5";
+  const API_URL = "https://api.anthropic.com/v1/messages";
+  const API_VERSION = "2026-10-21";
+  const MAX_TOKENS = 64000;
+
+  // ===== Page elements =====
+  const keyInput = document.getElementById("keyInput");
+  const showKeyButton = document.getElementById("showKeyButton");
+  const systemInput = document.getElementById("systemInput");
+  const settingsToggle = document.getElementById("settingsToggle");
+  const settingsFields = document.getElementById("settingsFields");
+  const chat = document.getElementById("chat");
+  const errorBox = document.getElementById("error");
+  const messageInput = document.getElementById("messageInput");
+  const sendButton = document.getElementById("sendButton");
+  const newButton = document.getElementById("newButton");
+  const exportButton = document.getElementById("exportButton");
+
+  // ===== Conversation state (in memory only, nothing is saved) =====
+  let transcript = [];       // everything shown in the chat and the export
+  let apiMessages = [];      // what gets sent back to Claude on the next message
+  let lastSystem = "";       // the system prompt the conversation is currently using
+  let unexported = false;    // true when the chat has changes that haven't been exported
+  let controller = null;     // set while a reply is running, used by the Stop button
+
+  // ===== Showing the conversation =====
+  function addMessageElement(entry) {
+    const message = document.createElement("div");
+    message.className = "message message-" + entry.role;
+
+    const label = document.createElement("div");
+    label.className = "message-label";
+    label.textContent = entry.role === "you" ? "You" : "Claude";
+    message.appendChild(label);
+
+    // textContent keeps replies as plain text, so they can never run as code on this page
+    const text = document.createElement("div");
+    text.className = "message-text";
+    text.textContent = entry.text;
+    message.appendChild(text);
+
+    if (entry.note) {
+      const note = document.createElement("div");
+      note.className = "message-note";
+      note.textContent = entry.note;
+      message.appendChild(note);
+    }
+
+    chat.appendChild(message);
+    return text;
+  }
+
+  function addSystemDivider(entry, isFirst) {
+    const divider = document.createElement("div");
+    divider.className = "system-divider";
+    if (!entry.text) {
+      divider.textContent = "System prompt cleared";
+    } else {
+      divider.textContent = isFirst ? "System prompt set" : "System prompt changed";
+    }
+    chat.appendChild(divider);
+  }
+
+  function renderChat() {
+    chat.replaceChildren();
+
+    if (transcript.length === 0) {
+      const empty = document.createElement("p");
+      empty.className = "empty-chat";
+      empty.textContent = "Enter your API key, add a system prompt if you want one, and send your prompt to start.";
+      chat.appendChild(empty);
+    }
+
+    let seenSystem = false;
+    let lastText = null;
+    for (const entry of transcript) {
+      if (entry.role === "system") {
+        addSystemDivider(entry, !seenSystem);
+        seenSystem = true;
+      } else {
+        lastText = addMessageElement(entry);
+      }
+    }
+
+    exportButton.disabled = controller !== null || transcript.length === 0;
+    newButton.disabled = controller !== null;
+    return lastText;
+  }
+
+  function scrollToBottom() {
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function isNearBottom() {
+    return chat.scrollHeight - chat.scrollTop - chat.clientHeight < 60;
+  }
+
+  function showError(message) {
+    errorBox.textContent = message;
+    errorBox.hidden = false;
+  }
+
+  function clearError() {
+    errorBox.textContent = "";
+    errorBox.hidden = true;
+  }
+
+  function setBusy(busy) {
+    sendButton.textContent = busy ? "Stop" : "Send";
+    sendButton.classList.toggle("stopping", busy);
+    messageInput.disabled = busy;
+    exportButton.disabled = busy || transcript.length === 0;
+    newButton.disabled = busy;
+  }
+
+  function setSettingsOpen(open) {
+    settingsFields.hidden = !open;
+    settingsToggle.setAttribute("aria-expanded", String(open));
+    settingsToggle.textContent = (open ? "Hide" : "Show") + " API Key and System Prompt";
+  }
+
+  // ===== Talking to Claude =====
+  function friendlyApiError(status, apiMessage) {
+    if (status === 401) {
+      return "That API key was rejected. Check it and send again.";
+    }
+    if (status === 429) {
+      return "Too many requests right now. Wait a moment and send again.";
+    }
+    if (status === 529) {
+      return "Claude is overloaded right now. Wait a moment and send again.";
+    }
+    if (status >= 500) {
+      return "Anthropic had a server problem. Wait a moment and send again.";
+    }
+    return "The request failed: " + (apiMessage || "error " + status);
+  }
+
+  async function readApiError(response) {
+    let apiMessage = "";
+    try {
+      const body = await response.json();
+      apiMessage = body.error && body.error.message;
+    } catch (err) {
+      // No readable error details, so the status code is all we have
+    }
+    return new Error(friendlyApiError(response.status, apiMessage));
+  }
+
+  // Applies one streaming event to the reply being built
+  function applyStreamEvent(event, reply, onText) {
+    if (event.type === "content_block_start") {
+      reply.blocks[event.index] = { ...event.content_block };
+    } else if (event.type === "content_block_delta") {
+      const block = reply.blocks[event.index];
+      const delta = event.delta;
+      if (delta.type === "text_delta") {
+        block.text += delta.text;
+        onText(delta.text);
+      } else if (delta.type === "thinking_delta") {
+        block.thinking += delta.thinking;
+      } else if (delta.type === "signature_delta") {
+        block.signature = delta.signature;
+      }
+    } else if (event.type === "message_delta") {
+      reply.stopReason = event.delta.stop_reason;
+    } else if (event.type === "message_stop") {
+      reply.finished = true;
+    } else if (event.type === "error") {
+      const type = event.error && event.error.type;
+      const status = type === "overloaded_error" ? 529 : type === "rate_limit_error" ? 429 : 500;
+      throw new Error(friendlyApiError(status));
+    }
+  }
+
+  // Sends the request and passes each piece of text to onText as it arrives
+  async function streamReply(key, system, messages, signal, onText) {
+    const body = { model: MODEL, max_tokens: MAX_TOKENS, messages: messages, stream: true };
+    if (system) {
+      body.system = system;
+    }
+
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": key,
+        "anthropic-version": API_VERSION,
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify(body),
+      signal: signal
+    });
+
+    if (!response.ok) {
+      throw await readApiError(response);
+    }
+
+    // Replies arrive as blocks of "data: {...}" lines separated by a blank line
+    const reply = { blocks: [], stopReason: null, finished: false };
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+      buffer += decoder.decode(value, { stream: true }).replace(/\r\n/g, "\n");
+      let end;
+      while ((end = buffer.indexOf("\n\n")) !== -1) {
+        const chunk = buffer.slice(0, end);
+        buffer = buffer.slice(end + 2);
+        for (const line of chunk.split("\n")) {
+          if (line.startsWith("data:")) {
+            applyStreamEvent(JSON.parse(line.slice(5)), reply, onText);
+          }
+        }
+      }
+    }
+
+    if (!reply.finished) {
+      throw new Error("The connection dropped before the reply finished. Send your message again.");
+    }
+    return reply;
+  }
+
+  // ===== Sending a message =====
+  async function sendMessage() {
+    const text = messageInput.value.trim();
+    if (!text) {
+      return;
+    }
+    clearError();
+
+    const key = keyInput.value.trim();
+    if (!key) {
+      setSettingsOpen(true);
+      showError("Enter your API key first. Your message is still in the box.");
+      keyInput.focus();
+      return;
+    }
+
+    // Saved so a failed send can put everything back the way it was
+    const saved = { length: transcript.length, system: lastSystem, unexported: unexported };
+
+    const system = systemInput.value.trim();
+    if (system !== lastSystem) {
+      transcript.push({ role: "system", text: system });
+      lastSystem = system;
+    }
+    transcript.push({ role: "you", text: text });
+    const claudeEntry = { role: "claude", text: "" };
+    transcript.push(claudeEntry);
+    unexported = true;
+
+    const outgoing = [...apiMessages, { role: "user", content: text }];
+    messageInput.value = "";
+    controller = new AbortController();
+    setBusy(true);
+
+    const textElement = renderChat();
+    textElement.textContent = "Thinking…";
+    textElement.classList.add("waiting");
+    scrollToBottom();
+
+    function undoSend() {
+      transcript.length = saved.length;
+      lastSystem = saved.system;
+      unexported = saved.unexported;
+      messageInput.value = text;
+    }
+
+    try {
+      const reply = await streamReply(key, system, outgoing, controller.signal, (piece) => {
+        const follow = isNearBottom();
+        claudeEntry.text += piece;
+        textElement.classList.remove("waiting");
+        textElement.textContent = claudeEntry.text;
+        if (follow) {
+          scrollToBottom();
+        }
+      });
+
+      if (reply.stopReason === "refusal") {
+        claudeEntry.marker = "[Declined]";
+        claudeEntry.note = "Claude declined this request, so this exchange won't be part of the conversation.";
+      } else if (!claudeEntry.text) {
+        claudeEntry.marker = "[No reply]";
+        claudeEntry.note = "Claude didn't return any text, so this exchange won't be part of the conversation.";
+      } else {
+        if (reply.stopReason === "max_tokens") {
+          claudeEntry.note = "This reply reached the length limit and was cut off.";
+        }
+        // Every block goes back unchanged, including hidden thinking blocks
+        apiMessages = [...outgoing, { role: "assistant", content: reply.blocks.filter(Boolean) }];
+      }
+    } catch (err) {
+      if (err.name === "AbortError") {
+        if (claudeEntry.text) {
+          claudeEntry.marker = "[Stopped]";
+          claudeEntry.note = "Stopped. Claude won't remember this exchange.";
+        } else {
+          undoSend();
+        }
+      } else if (err instanceof TypeError) {
+        undoSend();
+        showError("Couldn't reach Anthropic. Check your connection and send again.");
+      } else {
+        undoSend();
+        showError(err.message);
+      }
+    }
+
+    controller = null;
+    setBusy(false);
+    const follow = isNearBottom();
+    renderChat();
+    if (follow) {
+      scrollToBottom();
+    }
+    messageInput.focus();
+  }
+
+  // ===== New conversation =====
+  function newConversation() {
+    if (unexported && !confirm("Start a new conversation? This chat hasn't been exported and will be lost.")) {
+      return;
+    }
+    transcript = [];
+    apiMessages = [];
+    lastSystem = "";
+    unexported = false;
+    clearError();
+    renderChat();
+    messageInput.focus();
+  }
+
+  // ===== Export =====
+  function buildMarkdown() {
+    const labels = { system: "System", you: "You", claude: "Claude" };
+    const sections = [MODEL];
+    for (const entry of transcript) {
+      let text = entry.text;
+      if (entry.role === "system" && !text) {
+        text = "(none)";
+      }
+      if (entry.marker) {
+        text = text ? text + "\n\n" + entry.marker : entry.marker;
+      }
+      sections.push("### " + labels[entry.role] + "\n" + text);
+    }
+    return sections.join("\n\n") + "\n";
+  }
+
+  function exportFilename() {
+    const now = new Date();
+    const two = (number) => String(number).padStart(2, "0");
+    const date = now.getFullYear() + "-" + two(now.getMonth() + 1) + "-" + two(now.getDate());
+    return "prompt-lab-" + date + "-" + two(now.getHours()) + two(now.getMinutes()) + ".md";
+  }
+
+  function exportConversation() {
+    const file = new Blob([buildMarkdown()], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(file);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = exportFilename();
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    unexported = false;
+  }
+
+  // ===== Buttons and keyboard =====
+  sendButton.addEventListener("click", () => {
+    if (controller) {
+      controller.abort();
+    } else {
+      sendMessage();
+    }
+  });
+
+  messageInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+      event.preventDefault();
+      sendMessage();
+    }
+  });
+
+  showKeyButton.addEventListener("click", () => {
+    const hidden = keyInput.type === "password";
+    keyInput.type = hidden ? "text" : "password";
+    showKeyButton.textContent = hidden ? "Hide" : "Show";
+  });
+
+  settingsToggle.addEventListener("click", () => {
+    setSettingsOpen(settingsFields.hidden);
+  });
+
+  newButton.addEventListener("click", newConversation);
+  exportButton.addEventListener("click", exportConversation);
+
+  // Warns before a refresh or close would lose an unexported chat
+  window.addEventListener("beforeunload", (event) => {
+    if (unexported) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
+  });
+
+  // ===== Narrow screens start with settings collapsed =====
+  const narrowScreen = window.matchMedia("(max-width: 800px)");
+  function matchSettingsToScreen() {
+    setSettingsOpen(!narrowScreen.matches);
+  }
+  narrowScreen.addEventListener("change", matchSettingsToScreen);
+  matchSettingsToScreen();
+
+  // ===== Start =====
+  document.getElementById("modelName").textContent = MODEL;
+  renderChat();
+</script>
+</body>
+</html>
