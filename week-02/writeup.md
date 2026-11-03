@@ -24,6 +24,7 @@ Chain-of-thought made sense because choosing a location depended on several calc
 
 ## Example Run
 
+```text
 claude-sonnet-5
 
 ### System
@@ -88,6 +89,7 @@ Roast: Medium
 Tastes like: almond, caramel, orange peel
 Brew it: Drip or AeroPress
 Real talk: Balanced, friendly, a little citrusy. The golden retriever of our lineup.
+```
 
 ## Reflection
 
