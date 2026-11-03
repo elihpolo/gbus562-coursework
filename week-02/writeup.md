@@ -1,26 +1,27 @@
 ## What I Built
 
-For Week 2, I used Claude Code to build a Prompt Lab, a simple chat tool that runs in a web browser. Everything is in one HTML file called `prompt-lab.html`. On the left side of the page, I can enter my API key, write a system prompt, and type my message, and the conversation appears on the right. The lab uses the `claude-sonnet-5` model. My API key isn't saved in the file or in the exports, so I enter it again each session.
+For Week 2, I built a Prompt Lab, a chat tool that runs in a web browser. The prompt lab is built in one HTML file called `prompt-lab.html`. On the left side, I can enter my API key, set a system prompt, and type a message. The conversation then shows up on the right side. It uses the `claude-sonnet-5` model, and my API key isn't saved, so I have to enter it each time.
 
-After testing the lab with my Anthropic API key, I used it to complete four different tasks for Wildframe Coffee Roasters, a specialty coffee company. I exported each conversation as a Markdown file and saved them in the `runs` folder.
+Once I got the Prompt Lab working, I used it to complete four different tasks for Wildframe Coffee Roasters, a specialty coffee company. I tested different prompting techniques and exported each conversation into a Markdown file in the `runs` folder.
 
 ## Why This Approach
 
 Task 1 - Technique: zero-shot
 
-Zero-shot made sense because I wanted creative ideas for subscriber perks, and an example might have pushed Claude toward ideas similar to mine. I gave it the task and clear format limits instead, and it came back with six ideas in the right format, so I didn't send a follow-up. I did notice that the third perk is called "annual" but says it's delivered every 6 months, which shows that a well-formatted answer still needs to be checked.
+I used zero-shot for this task because I wanted Claude to come up with creative subscriber perks without giving it examples to follow. I gave cluade instructions and formatting requirements, and it came back with six ideas that followed the format. I didn't need a follow-up, but I did notice one issue. The third perk was called "annual" even though it said it would be delivered every six months.
 
 Task 2 - Technique: one-shot
 
-One-shot fit this task because the new bean cards needed to match an existing card, and one example was enough to show the format and style. Claude followed the labels and order correctly, and the Real talk lines sounded like Wildframe. However, it left low acidity out of the Tastes like line for the Cerrado coffee, so I asked it to add that and resend all three cards. It made that change and kept everything else the same.
+For task 2, I used one-shot because I wanted the new coffee cards to match an example that was already provided. I gave Claude one example that helped it format and the writing style. It followed the format well, but it forgot to include low acidity in the Cerrado coffee description. I followed up and asked it to add that while keeping everything else the same, and it made the correction.
+
 
 Task 3 - Technique: few-shot
 
-I used few-shot because brand voice is harder to explain than a card format, and the customer comments called for different kinds of replies. Three examples showed how Wildframe handles a skeptical question, a complaint, and a compliment, and the tone of Claude's replies matched them well. Even though I told it not to make unconfirmed promises, the first draft mentioned a Swiss Water decaf and said the shipping issue was already being looked into, so I asked it to remove those details. The new version fixed those two problems, but it still promised the order would arrive "pronto" and said Wildframe has a decaf it's proud of, so the examples helped more with tone than with following that rule.
+I used few-shot prompting because I wanted Claude to see a few examples of how Wildframe responds to customers. I gave it three examples to help it understand the company's writing style. Claude did a good job matching the tone, but it also included some information that wasn't confirmed, such as a specific decaf coffee and an update about a shipping issue. I asked Claude to fix those mistakes, and it corrected some of them, but there were still a few statements that weren't confirmed. This helped me understand that giving examples can improve the response, but it doesn't mean everything will be correct.
 
 Task 4 - Technique: chain-of-thought
 
-Chain-of-thought made sense because choosing a location depended on several calculations, and I wanted to be able to check each step instead of just getting an answer. Claude showed the numbers for all three locations, and I reviewed the calculations to make sure everything was correct. It recommended Riverside Farmers Market because it fit the $5,000 budget and had the highest revenue minus rent. Its first response used emojis and Markdown formatting, so I asked for a plain version that ended with the exact Recommendation line, and the calculations stayed the same. I also noticed it used the word "profit" even though the numbers only subtract rent and don't include costs like beans or labor.
+For the last task, I used chain-of-thought prompting because Claude needed to compare three locations and calculate which one would be the best choice. I wanted it to show the calculations so I could check the numbers myself. Claude recommended Riverside Farmers Market because it was within the $5,000 budget and had the highest revenue after subtracting rent. I had to send a follow-up because the first response included emojis and formatting I didn't want. I also noticed that Claude called the final amount "profit," even though it didn't include other business expenses.
 
 ## Example Run
 
@@ -93,8 +94,8 @@ Real talk: Balanced, friendly, a little citrusy. The golden retriever of our lin
 
 ## Reflection
 
-Comparing the four techniques, I think the examples made the biggest difference in getting Claude to match Wildframe's style. That was especially true for the customer replies in Task 3, where three examples gave it a clear sense of the tone. The one example in Task 2 was also enough for it to copy the bean card format. Chain-of-thought helped in a different way because Task 4 showed each calculation, which made the recommendation easier to review.
+After completing all four tasks, I learned that different prompting techniques can be useful depending on what you want Claude to do. I think using examples worked best when I wanted Claude to follow a certain format or writing style. For example, one-shot worked well for creating the coffee cards, while few-shot helped Claude understand how to respond to different customers.
 
-The main thing I learned is that following the format doesn't mean the answer is right. Claude left low acidity off the Cerrado card, and it made claims in the customer replies that weren't confirmed. Even after my follow-up, some of the replies still had promises I hadn't confirmed. Follow-up prompts helped, but I still had to read each response carefully.
+One of the biggest things I noticed was that Claude can follow most of the instructions but still make mistakes. In Task 2, it left out information about one of the coffees, and in Task 3, it included details that weren't confirmed. Even after asking Claude to fix some of these problems, there were still a few mistakes. This showed me that I need to review the responses instead of assuming everything is correct.
 
-I'm least sure about using zero-shot for Task 1. An example might have helped make the perks more realistic, but it also could have limited the creativity. I can't really say which would have worked better without trying it both ways.
+I am still unsure whether zero-shot was the best choice for Task 1. It gave Claude more freedom to come up with ideas, but providing an example might have helped make the ideas more realistic. I think it would be interesting to try both methods and compare the results.
