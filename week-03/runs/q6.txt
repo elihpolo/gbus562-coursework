@@ -1,0 +1,38 @@
+Question: What is the current rate on a 30-year fixed mortgage?
+Documents: C:\Users\eli\GBUS562\gbus562-coursework\week-03\larkfield-docs
+Model: claude-sonnet-5
+
+RETRIEVED CHUNKS (top 5; similarity = 1 - cosine distance, higher = closer)
+
+Rank 1 | similarity 0.247 | source: share-certificates.html | section: Dividend rates
+    Larkfield Credit Union | Share Certificates (Version 5, current)
+    Section: Dividend rates
+    - 6-month share certificate: 3.05% annual percentage yield (APY).
+    - 12-month share certificate: 3.40% APY.
+    - 24-month share certificate: 3.55% APY.
+    - 36-month share certificate: 3.60% APY.
+    - 60-month share certificate: 3.75% APY.
+    The rate is fixed when the certificate is opened and does not change during the term. Dividends are paid monthly and can stay in the certificate or be transferred to the member's savings or checking account.
+
+Rank 2 | similarity 0.242 | source: consumer-fee-schedule.html | section: Stop payments
+    Larkfield Credit Union | Consumer Fee Schedule (Version 8, current)
+    Section: Stop payments
+    A stop payment on a check costs $30 per request. One request can cover a single check or a series of checks with consecutive numbers. A stop payment stays in effect for six months and can be renewed for another $30.
+
+Rank 3 | similarity 0.225 | source: share-certificates.html | section: At maturity
+    Larkfield Credit Union | Share Certificates (Version 5, current)
+    Section: At maturity
+    When a share certificate matures, it renews automatically for the same term at the rate in effect on the renewal day. The member has a 10-day grace period after maturity to withdraw the money or change the term with no penalty.
+
+Rank 4 | similarity 0.208 | source: consumer-fee-schedule.html | section: Checking account monthly fees
+    Larkfield Credit Union | Consumer Fee Schedule (Version 8, current)
+    Section: Checking account monthly fees
+    Everyday Checking has no monthly service fee. Plus Checking has a monthly service fee of $8. The Plus Checking fee is waived for any month in which the account keeps a minimum daily balance of $1,000, or receives direct deposits totaling $500 or more.
+
+Rank 5 | similarity 0.194 | source: share-certificates.html | section: Terms and minimum deposit
+    Larkfield Credit Union | Share Certificates (Version 5, current)
+    Section: Terms and minimum deposit
+    Larkfield offers share certificates with terms of 6, 12, 24, 36, and 60 months. The minimum opening deposit for any share certificate is $500. A member can hold any number of share certificates.
+
+ANSWER
+The documents I searched do not answer this question. The retrieved sources cover share certificates (terms, dividend rates, maturity rules) and consumer fees (stop payments, checking account fees), but nothing about mortgage products or rates (share-certificates.html; consumer-fee-schedule.html).

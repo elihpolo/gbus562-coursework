@@ -1,0 +1,13 @@
+.venv/
+
+# Chroma vector databases (rebuilt with: ask.py build)
+chroma_db/
+
+# Python caches
+__pycache__/
+
+# API keys must never be committed (the key lives outside this repository)
+API-Key.txt
+API KEY.txt
+*.key
+.env

@@ -1,0 +1,44 @@
+Question: Can I refund the outgoing international wire transfer fee for a member without approval from a manager?
+Documents: C:\Users\eli\GBUS562\gbus562-coursework\week-03\larkfield-docs
+Model: claude-sonnet-5
+
+RETRIEVED CHUNKS (top 5; similarity = 1 - cosine distance, higher = closer)
+
+Rank 1 | similarity 0.510 | source: fee-refund-guide.html | section: Refunds that need a branch manager
+    Larkfield Credit Union | Fee Refund Guide for Member Service Staff (Version 2, current)
+    Section: Refunds that need a branch manager
+    A refund needs the branch manager's approval when the fee is more than $30, when the member has already had a refund in the last 90 days, or when the member asks for several fees to be refunded at once. A branch manager may approve refunds of up to $150 in total for one member in any 90-day period.
+
+Rank 2 | similarity 0.483 | source: fee-refund-guide.html | section: What a member service representative can approve
+    Larkfield Credit Union | Fee Refund Guide for Member Service Staff (Version 2, current)
+    Section: What a member service representative can approve
+    A member service representative may approve a refund of a single fee of $30 or less without anyone else's approval. A representative may approve only one refund for the same member in any 90-day period.
+
+Rank 3 | similarity 0.481 | source: consumer-fee-schedule.html | section: Wire transfers
+    Larkfield Credit Union | Consumer Fee Schedule (Version 8, current)
+    Section: Wire transfers
+    - Incoming domestic wire transfer: $10.
+    - Incoming international wire transfer: $15.
+    - Outgoing domestic wire transfer: $25.
+    - Outgoing international wire transfer: $45. The receiving bank or an intermediary bank may deduct its own fees from the amount sent.
+
+Rank 4 | similarity 0.469 | source: fee-refund-guide.html | section: Refunds that need the Member Services Director
+    Larkfield Credit Union | Fee Refund Guide for Member Service Staff (Version 2, current)
+    Section: Refunds that need the Member Services Director
+    Refunds of more than $150 in total for one member in any 90-day period need the Member Services Director's approval. So does any refund for a business account.
+
+Rank 5 | similarity 0.436 | source: fee-refund-guide.html | section: Recording a refund
+    Larkfield Credit Union | Fee Refund Guide for Member Service Staff (Version 2, current)
+    Section: Recording a refund
+    Every refund must be recorded in the member's account notes with the fee, the amount refunded, the reason, and the name of the person who approved it. Refunds that are not recorded this way may be reversed during the monthly audit.
+
+ANSWER
+No — a member service representative cannot approve this refund alone.
+
+The outgoing international wire transfer fee is $45 (consumer-fee-schedule.html, "Wire transfers"). A representative may only approve refunds of "a single fee of $30 or less without anyone else's approval" (fee-refund-guide.html, "What a member service representative can approve"). Since $45 exceeds that threshold, it falls under the rule that "a refund needs the branch manager's approval when the fee is more than $30" (fee-refund-guide.html, "Refunds that need a branch manager").
+
+So this refund requires branch manager approval — unless other conditions apply that would escalate it further:
+- If the member has already had a refund in the last 90 days, or is requesting several fees refunded at once, branch manager approval is still the trigger named in that section (fee-refund-guide.html, "Refunds that need a branch manager").
+- If this refund would bring the member's total refunds in the last 90 days above $150, or if the account is a business account, approval from the Member Services Director is required instead (fee-refund-guide.html, "Refunds that need the Member Services Director").
+
+The documents do not state which of these additional conditions apply in your case, so you should check the member's refund history and account type before determining whether branch manager or Director approval is needed. Whatever is approved must also be recorded in the account notes with the fee, amount, reason, and approver's name (fee-refund-guide.html, "Recording a refund").
