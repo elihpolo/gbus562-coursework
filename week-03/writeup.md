@@ -2,19 +2,19 @@
 
 ## What I Built
 
-I built `ask.py`, a command-line retrieval-augmented generation (RAG) tool that answers questions from a folder of company documents. It reads HTML, PDF, Markdown, and text files, splits each document into chunks by section, and stores the chunks in a ChromaDB vector database. When I ask a question, it pulls the five closest chunks and sends them to Claude (`claude-sonnet-5`) with instructions to answer only from those sources and to cite the filename and section for every fact. If the documents don't cover the question, Claude is supposed to say so instead of guessing.
+For this assignment, I used Claude Code to build a RAG tool called ask.py that answers questions using information from company documents. The tool reads files such as PDFs, HTML, Markdown, and text documents, breaks them into smaller sections, and stores them in a database called ChromaDB. When I ask a question, it finds the five most relevant sections and sends them to Claude to create an answer based on that information. The goal is to have Claude use the actual documents instead of making up an answer.
 
-The `--docs` option picks which folder to search, and each folder gets its own database, which is kept out of Git. The `--save` option writes the whole run to a text file: the ranked chunks with similarity scores and filenames, then an `ANSWER` line, then Claude's answer. I first built it for Copperline Manufacturing's five finance documents (35 chunks). Then I used it on Larkfield Credit Union's documents, which is where the seven runs in `runs/` come from.
+I first tested the tool using five documents from Copperline Manufacturing. After getting it working, I switched to Larkfield Credit Union's documents and ran the required questions. I also added options to choose which folder to search and save the results to a text file. This made it easier to compare answers and see which documents Claude was using.
 
 ## Why This Approach
 
-Chunking method: structure. Every document already has a title and clear section headings, and each section covers one topic, so I made each section one chunk instead of cutting the text every N words.
+Chunking method: structure
 
-Makes sense on its own: Yes. Every chunk starts with a short header naming the organization, the document title and version, and the section heading. A chunk like "the limit includes tax and tip" still makes sense when it comes back by itself.
+Makes sense on its own: Yes. I decided to split the documents by their headings and sections because most of the information was already organized by topic. This made more sense to me than splitting everything into random sections based on word count. Each chunk also includes a heading so it is easier to understand on its own.
 
-Label and source: Both. The document title and section heading are part of the text that gets embedded, and the source filename is stored as metadata. Claude sees the filename for every chunk and has to cite it.
+Label and source: Both. Each chunk includes the document title and section heading, along with the original filename. This helps Claude know where the information came from and makes it easier to check whether the answer matches the original document.
 
-Short enough: Yes. The embedding model (all-MiniLM-L6-v2) stops reading after 256 tokens, which is about 190 words. I aimed for 160 words per chunk, and the build checks every chunk with the model's own tokenizer and stops if any chunk is too long. The longest Larkfield chunk is 123 words (164 tokens), so nothing gets cut off.
+Short enough: Yes. I tried to keep each chunk around 160 words or less so the embedding model could read all of the information. The model has a 256-token limit, and the longest Larkfield chunk was only 123 words and 164 tokens. This helped prevent important information from being cut off.
 
 ## Example Run
 
@@ -62,10 +62,12 @@ Note: this $30 rate applies to the standard, non-fraud replacement scenario. If 
 
 ## Reflection
 
-What was wrong: consumer-fee-schedule-v7.html was an outdated copy of the Consumer Fee Schedule that was still in the active folder, and it still called itself "Version 7 (current)." For Question 1, it listed a $35 overdraft fee, while the real current schedule (Version 8, consumer-fee-schedule.html) says $29. Both chunks came back as the top two results, so Claude correctly flagged the conflict but couldn't tell me which fee was real (`runs/q1-before.txt`).
+What was wrong: The file consumer-fee-schedule-v7.html was an older version of Larkfield's fee schedule, but it was still included with the current documents. It listed the overdraft fee as $35, while the newer Version 8 document listed it as $29. When I asked Question 1, Claude found both versions and pointed out the difference. This showed me how having outdated information in the database can cause confusion even when the tool is working correctly.
 
-How I fixed it: Moved consumer-fee-schedule-v7.html out of larkfield-docs and into a separate larkfield-docs-archive folder without editing it, then rebuilt the Larkfield database so it only had the five active documents (30 chunks instead of 39). When I ran Question 1 again with the same wording, it gave only the $29 fee, cited consumer-fee-schedule.html, and none of the retrieved chunks came from Version 7 (`runs/q1-after.txt`).
+How I fixed it: Moved the older Version 7 document into a separate archive folder so the tool would no longer search it. I then rebuilt the database with only the five current documents and ran Question 1 again. This time Claude correctly answered $29 and only used the current fee schedule. I kept the original results so I could compare the before and after answers.
 
-Prevention: Archive process. Whenever a new version of a policy is published, the old version should be moved to an archive folder that the tool never indexes, and the database should be rebuilt right away. Before each build, someone should also check that no two documents share the same title, since a duplicate title usually means an old version was left behind.
+Prevention: Archive process. I think the best way to prevent this problem is to make sure older versions of documents are removed from the active folder whenever a new version is added. The old documents can still be saved in a separate archive folder, but they should not be included when rebuilding the database. It would also help to check for duplicate document titles before adding new files.
 
-Question 6: Declined. The question asked for the current 30-year fixed mortgage rate, but the five retrieved chunks were only about share certificates (dividend rates, terms, and maturity) and account fees. None of the Larkfield documents mention mortgages, so Claude said the documents do not answer the question and did not make up a rate (`runs/q6.txt`).
+Question 6: Declined. I asked Claude for the current 30-year fixed mortgage rate, but the documents did not include that information. The retrieved sections were about share certificates and account fees instead. Claude correctly said that the documents did not answer the question rather than guessing a mortgage rate. This showed me why it is important for a RAG tool to recognize when it does not have enough information to answer.
+
+One other thing I noticed while testing was that Claude sometimes misunderstood a rule even when it found the correct document. For Question 4, it initially confused which manager needed to approve certain refunds. I updated the general instructions to make Claude check the exact conditions in the documents before answering. After testing it again, the answer was more accurate. This helped me understand that RAG can improve accuracy, but the answers still need to be checked.
