@@ -10,11 +10,11 @@ I first tested the tool using five documents from Copperline Manufacturing. Afte
 
 Chunking method: structure
 
-Makes sense on its own: Yes. I decided to split the documents by their headings and sections because most of the information was already organized by topic. This made more sense to me than splitting everything into random sections based on word count. Each chunk also includes a heading so it is easier to understand on its own.
+Makes sense on its own: Yes, I decided to split the documents by their headings and sections because most of the information was already organized by topic. This made more sense to me than splitting everything into random sections based on word count. Each chunk also includes a heading so it is easier to understand on its own.
 
-Label and source: Both. Each chunk includes the document title and section heading, along with the original filename. This helps Claude know where the information came from and makes it easier to check whether the answer matches the original document.
+Label and source: Both, Each chunk includes the document title and section heading, along with the original filename. This helps Claude know where the information came from and makes it easier to check whether the answer matches the original document.
 
-Short enough: Yes. I tried to keep each chunk around 160 words or less so the embedding model could read all of the information. The model has a 256-token limit, and the longest Larkfield chunk was only 123 words and 164 tokens. This helped prevent important information from being cut off.
+Short enough: Yes, I tried to keep each chunk around 160 words or less so the embedding model could read all of the information. The model has a 256-token limit, and the longest Larkfield chunk was only 123 words and 164 tokens. This helped prevent important information from being cut off.
 
 ## Example Run
 
@@ -68,6 +68,6 @@ How I fixed it: Moved the older Version 7 document into a separate archive folde
 
 Prevention: Archive process. I think the best way to prevent this problem is to make sure older versions of documents are removed from the active folder whenever a new version is added. The old documents can still be saved in a separate archive folder, but they should not be included when rebuilding the database. It would also help to check for duplicate document titles before adding new files.
 
-Question 6: Declined. I asked Claude for the current 30-year fixed mortgage rate, but the documents did not include that information. The retrieved sections were about share certificates and account fees instead. Claude correctly said that the documents did not answer the question rather than guessing a mortgage rate. This showed me why it is important for a RAG tool to recognize when it does not have enough information to answer.
+Question 6: Declined, I asked Claude for the current 30-year fixed mortgage rate, but the documents did not include that information. The retrieved sections were about share certificates and account fees instead. Claude correctly said that the documents did not answer the question rather than guessing a mortgage rate. This showed me why it is important for a RAG tool to recognize when it does not have enough information to answer.
 
 One other thing I noticed while testing was that Claude sometimes misunderstood a rule even when it found the correct document. For Question 4, it initially confused which manager needed to approve certain refunds. I updated the general instructions to make Claude check the exact conditions in the documents before answering. After testing it again, the answer was more accurate. This helped me understand that RAG can improve accuracy, but the answers still need to be checked.
