@@ -1,0 +1,7 @@
+# Week 4 HR MCP server (hr_mcp_server.py) and email agent (agent.py). Install into the repo's .venv:
+#   .venv\Scripts\python.exe -m pip install -r week-04\requirements.txt
+mcp>=2.3,<3            # official MCP Python SDK (MCPServer, stdio transport)
+chromadb>=1.5          # vector index + default all-MiniLM-L6-v2 embedder (via week-03/ask.py)
+tokenizers>=0.20       # token counting when the index is rebuilt (via week-03/ask.py)
+beautifulsoup4>=4.12   # HTML policy parsing (via week-03/ask.py)
+anthropic>=2.7,<3      # Claude API SDK (agent.py)

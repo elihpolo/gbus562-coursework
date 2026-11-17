@@ -11,3 +11,10 @@ API-Key.txt
 API KEY.txt
 *.key
 .env
+
+# Week 4 agent drafts (employee replies, never committed; run transcripts in week-04/runs/ are kept)
+week-04/drafts/
+
+# Agent email account settings and sender allowlist (personal, never committed)
+Agent-Email.txt
+Agent-Allowlist.txt

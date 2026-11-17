@@ -1,0 +1,44 @@
+Sender:  Logan Brooks <logan.brooks@ridgelinehotels.example>
+Subject: Days off
+Organization: Ridgeline Hotels (ridgeline-hotels)
+Email file:   07-logan-seasonal.eml
+Model: claude-sonnet-5, at most 10 tool calls; MCP server runs in employee mode for the sender
+
+[hr_mcp_server] Organization: Ridgeline Hotels (ridgeline-hotels)
+[hr_mcp_server] Employee columns: email='Email Address', leave=['PTO Days Remaining', 'Sick Days Remaining']
+[hr_mcp_server] Employee mode for logan.brooks@ridgelinehotels.example
+[hr_mcp_server] WARNING: that email is not in ridgeline-hotels/employees.csv; get_leave_balance will return an error
+
+Tools: search_policy, get_leave_balance, save_reply
+
+--- Tool call 1/10: get_leave_balance
+    input:  {}
+    ERROR: Error executing tool get_leave_balance: No employee record was found for 'logan.brooks@ridgelinehotels.example'. Do not state, estimate, or guess any leave balance for this person. Say the balance could not be found and that someone from HR will follow up.
+
+--- Tool call 2/10: save_reply
+    input:  {"reply_text": "Hi Logan,\n\nThanks for reaching out! I tried to pull up your PTO balance, but I wasn't able to find an employee record associated with this email address in our system. Rather than guess, I want to make sure you get the correct number, so I'm flagging this for a member of our People and Culture team to look into and follow up with you directly.\n\nIn the meantime, if you have an employee ID or were set up under a different email address, feel free to reply with that info so we can track down your record faster.\n\nThanks for your patience!\n\nBest,\nHR Assistant\nRidgeline Hotels", "needs_human_review": true}
+    result: Draft saved to week-04/drafts/20261116-152019-ridgeline-07-logan-seasonal.txt (not sent).
+
+[Claude] I've drafted a reply letting Logan know we couldn't locate his employee record to pull up his PTO balance, and flagged it for HR follow-up so someone can verify his details and provide the correct number.
+
+========================================================================
+Stopped: Claude finished its turn without asking for another tool.
+Tool calls used: 2/10
+========================================================================
+Saved to week-04/drafts/20261116-152019-ridgeline-07-logan-seasonal.txt (NOT sent)
+
+DRAFT
+Hi Logan,
+
+Thanks for reaching out! I tried to pull up your PTO balance, but I wasn't able to find an employee record associated with this email address in our system. Rather than guess, I want to make sure you get the correct number, so I'm flagging this for a member of our People and Culture team to look into and follow up with you directly.
+
+In the meantime, if you have an employee ID or were set up under a different email address, feel free to reply with that info so we can track down your record faster.
+
+Thanks for your patience!
+
+Best,
+HR Assistant
+Ridgeline Hotels
+Needs human review: true
+========================================================================
+Total tokens: 4,667 input, 354 output
