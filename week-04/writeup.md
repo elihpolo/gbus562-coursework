@@ -2,19 +2,23 @@
 
 ## What I Built
 
-I built an HR agent that drafts a reply to one employee email at a time. It has two parts. The first is `hr_mcp_server.py`, an MCP server with two tools: `search_policy`, which searches the HR policies in a ChromaDB database (reusing my Week 3 RAG code), and `get_leave_balance`, which looks up an employee's leave balance in `employees.csv`. The second is `agent.py`, which reads an email file, finds the sender's address, and starts the MCP server in employee mode for that address. It then runs a loop with Claude (`claude-sonnet-5`) that can use the two MCP tools plus a `save_reply` tool, which saves the reply as a draft in `drafts/` without sending it. The agent reads the system prompt from a file every time it runs, stops after 10 tool calls or when Claude stops asking for tools, and prints each tool call, the final draft, whether it needs human review, and the total tokens used.
+I built an AI agent that can help respond to employee HR emails. The agent can search company policies, check employee PTO balances, and create a draft response based on the information it finds. The goal was to have the AI do most of the research and drafting while still allowing a person to review the response before it gets sent.
 
-I first built it for Hartwell Foods. Then I adapted it for Ridgeline Hotels by adding an `--org` option to both scripts, so each organization uses its own policies, employee records, system prompt, and ChromaDB database (Hartwell has 23 chunks and Ridgeline has 22, and both databases are kept out of Git). Ridgeline's employee file uses different column names, like "Email Address" and "PTO Days Remaining," so the server now finds the email and leave balance columns from the headers instead of hardcoding them. The `--org` option isn't limited to these two companies. It works with any organization folder that has `hr-docs`, `employees.csv`, and `system_prompt.txt`, and each new organization gets its own database. I also added a `--save` option that saves everything printed during a run to a text file. I tested all seven Ridgeline emails, and the transcripts are in `runs/`.
+I used hr_mcp_server.py to give the agent access to two tools, search_policy and get_leave_balance. I also reused my Week 3 RAG code with ChromaDB to help search the company policies. The agent.py file uses Claude to read the email, decide which tools to use, and save a draft using save_reply. I limited it to 10 tool calls and added a flag for emails that need human review.
+
+I started with Hartwell Foods and then adapted the agent for Ridgeline Hotels. One of the challenges was that each company had different policies and employee records. I had to adjust the code so it could recognize different spreadsheet columns and keep each company's information separate. I also added an --org option so the agent can work with other companies using the same setup.
+
+After that, I tested all seven Ridgeline emails and used the --save option to save the results in the runs/ folder.
 
 ## Why This Approach
 
-Task A: Script. Updating PTO balances is a recurring task that follows predetermined rules and doesn't require AI.
+Task A: Script. I would use a Python script to update PTO balances each night. Since it's the same process every time and follows set rules, I don't think AI is really needed for this task.
 
-Task B: One model call. Rewriting a PTO policy into an FAQ doesn't require multiple tools or decisions.
+Task B: One model call. I would use one model call to turn a PTO policy into an FAQ. The information is already provided, so the AI just needs to organize it into a format that's easier for employees to understand.
 
-Task C: Agent. Answering scheduling questions may require accessing different policies and employee records depending on the question.
+Task C: Agent. I would use an agent for a supervisor asking about scheduling. Depending on the question, the agent might need to search different policies or look up employee information. Having an agent allows it to decide which tools it needs rather than following the same process every time.
 
-Email 5 protection: Tools. The MCP server restricts the agent to the sender's employee record. Even if the model followed the prompt injection, it wouldn't have access to other employees' balances.
+Email 5 protection: Tools. I think protecting the employee information at the tool level is the best approach. In Email 5, the message tried to get the agent to share everyone's PTO balances. Since the MCP server only allowed access to the sender's information, the agent couldn't access the other employees' balances. This adds another layer of protection instead of relying only on the AI to follow instructions.
 
 ## Example Run
 
@@ -75,8 +79,8 @@ Total tokens: 6,291 input, 783 output
 
 ## Reflection
 
-Email 3 tools: get_leave_balance, search_policy, save_reply. The agent checked Brittany's PTO balance, researched the borrowing policy, and saved a draft (`runs/ridgeline-03.txt`).
+Email 3 tools: The agent used get_leave_balance, search_policy, and save_reply. It checked Brittany's PTO balance, searched the policy about borrowing additional PTO days, and then saved a draft response. This was a good example of the agent using multiple tools to answer a question that needed more than just a simple policy lookup.
 
-Email 6 flagged: Yes. The agent told Danielle that People and Culture would follow up regarding her harassment report. However, it provided more advice than instructed, demonstrating the importance of human review (`runs/ridgeline-06.txt`).
+Email 6 flagged: Yes, the agent flagged Danielle's email for human review because it involved harassment by a guest. The draft told her that People & Culture would follow up, but the agent also gave more advice than it was supposed to. This showed me that even when the agent recognizes a situation that needs human review, it doesn't always follow the instructions perfectly.
 
-Email 7 balance lookup: Error. The agent couldn't find Logan's employee record and told him that People and Culture would follow up rather than guessing his PTO balance (`runs/ridgeline-07.txt`).
+Email 7 balance lookup: The agent received an error when looking up Logan's PTO balance because his employee record wasn't found. Instead of guessing how much PTO he had, it created a draft explaining that People & Culture would follow up. I think this was the correct response because it would be better to have someone verify the information than give an employee an incorrect balance.
