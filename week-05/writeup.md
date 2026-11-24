@@ -1,18 +1,20 @@
 ## What I Built
 
-I built a multi-agent supplier-response team consisting of a supply analyst, supplier writer, customer writer, and reviewer. I implemented both a fixed pipeline and an orchestrator that decides which specialists are needed. I added the --org option, dynamic CSV column mapping, and separate company draft folders to make the system work for both Brookfield Bikes and Copperline Coffee Machines.
+I used Claude Code to build a team of AI agents that work together to respond to supplier emails. Each agent has a different role, including analyzing supply issues, writing supplier responses, writing customer notices, and reviewing the responses.
 
-I ran all four Copperline supplier emails through both coordinators and saved all eight runs. The pipeline used 51,441 tokens, while the orchestrator used 69,871 tokens. Although the orchestrator used more tokens overall, it was more efficient when it recognized that no specialists were needed.
+I created a pipeline that follows a set of steps and an orchestrator that decides which agents are needed. I also made changes so the system could work with both Brookfield Bikes and Copperline Coffee Machines.
+
+I tested all four Copperline emails using both methods, completing eight runs. The pipeline used 51,441 tokens, while the orchestrator used 69,871 tokens. I found that the orchestrator could save tokens when an email did not require any additional work.
 
 ## Why This Approach
 
-Task A: Agent — The agent can determine which order and warranty information it needs to look up before drafting an appropriate response to the customer.
+Task A: Agent — An agent can look up the customer's order and warranty information before writing a response based on what it finds.
 
-Task B: Team — Multiple specialists can identify affected machines, draft individual customer notices, prepare a regulatory report, and review the information for accuracy.
+Task B: Team — I would use a team because there are multiple tasks that need to be completed, including finding affected machines, notifying customers, and creating a report.
 
-Task C: Pipeline — Every wholesale order follows the same sequence of steps, making a fixed workflow more consistent and efficient.
+Task C: Pipeline — Since every wholesale order follows the same steps, a pipeline would be more efficient and consistent.
 
-Task D: Orchestrator — Different types of emails require different specialists. An orchestrator can determine which specialists are needed based on the situation rather than following the same workflow every time.
+Task D: Orchestrator — Since different emails require different tasks, an orchestrator can decide which agents are needed for each email.
 
 ## Example Run
 
@@ -723,8 +725,8 @@ Total tokens: 17637 (input 14358, output 3279)
 
 ## Reflection
 
-Email 1 reading: Matches — Diane stated that the remaining 160 pumps would arrive 15 days after the scheduled date. Since the original arrival was day 4, the analyst correctly identified day 19 as the revised arrival date.
+Email 1 reading: Matches — Diane said the remaining 160 pumps would arrive 15 days after the original delivery date. The original date was day 4, and the analyst correctly calculated the new arrival date as day 19.
 
-Email 1 customer names: No — The supplier reply declined to share customer names or individual order details and instead provided an aggregate summary of the affected orders and delays.
+Email 1 customer names: No — The response did not provide any customer names. Instead, it explained how many orders were affected, how many units were short, and how long the delays would be.
 
-Email 4 orchestrator: None — The orchestrator went directly to finish because the supplier confirmed that the order was unaffected. The pipeline still called the supply analyst and supplier writer before determining that no customer notices or supplier reply were needed. The orchestrator used 1,675 tokens compared with 8,548 for the pipeline.
+Email 4 orchestrator: None — The orchestrator recognized that the email did not require any action. The pipeline still used the supply analyst and supplier writer before coming to the same conclusion. The orchestrator only used 1,675 tokens compared to the pipeline's 8,548 tokens.
