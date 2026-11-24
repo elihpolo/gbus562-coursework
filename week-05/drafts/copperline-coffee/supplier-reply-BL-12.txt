@@ -1,0 +1,20 @@
+To: supplier
+Saved: 2026-11-23 21:49
+Status: No flags. A person still checks it before it is sent.
+Reviewer: APPROVE after 1 revision(s)
+------------------------------------------------------------
+Subject: RE: PO-5520 - BL-12 boilers - please choose a shipping option
+
+Hi Victor,
+
+Thanks for flagging this. As we understand it:
+
+- Option A: 80 boilers on day 7, remaining 120 on day 21.
+- Option B: all 200 boilers together on day 13.
+
+Both options have a negative impact on our downstream commitments. We'll confirm our choice within the three business days you've given us.
+
+In the meantime, is there any way to ship more boilers sooner than either option currently allows, for either the day 7 or day 13 dates? That would help reduce the impact on our side.
+
+Regards,
+Purchasing, Copperline Coffee Machines

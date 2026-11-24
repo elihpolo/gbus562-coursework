@@ -1,0 +1,193 @@
+
+##### STEP 1: supply analyst #####
+
+=== HANDOFF  coordinator -> analyst  |  supplier email ===
+From: Brian Foley <b.foley@keystonebattery.example>
+To: Purchasing <purchasing@brookfieldbikes.example>
+Subject: PO-7790 - BP-48 battery packs - shipped on schedule
+
+Hello,
+
+Good news: PO-7790 for 150 BP-48 battery packs left our warehouse today and is
+on track to arrive on the scheduled date. No action is needed on your side.
+
+Best regards,
+Brian Foley
+Order Desk, Keystone Battery Co.
+
+[tokens] analyst: in=1685 out=294
+
+=== HANDOFF  analyst -> supply tool  |  call 1/10: get_part ===
+{
+  "part_id": "BP-48"
+}
+
+=== HANDOFF  supply tool -> analyst  |  result of call 1 ===
+{
+  "part_id": "BP-48",
+  "description": "48-volt battery pack",
+  "supplier": "Keystone Battery Co.",
+  "on_hand": 35,
+  "scheduled_shipments": [
+    {
+      "po_number": "PO-7790",
+      "supplier": "Keystone Battery Co.",
+      "qty": 150,
+      "arrives_in_days": 6
+    }
+  ],
+  "models_using_part": [
+    {
+      "model": "Cargo E",
+      "qty_per_bike": 1
+    }
+  ]
+}
+
+=== HANDOFF  analyst -> supply tool  |  call 2/10: get_orders_for_part ===
+{
+  "part_id": "BP-48"
+}
+
+=== HANDOFF  supply tool -> analyst  |  result of call 2 ===
+{
+  "part_id": "BP-48",
+  "orders": [
+    {
+      "order_id": "O-1042",
+      "customer": "Blue Ridge Bike Shop",
+      "model": "Cargo E",
+      "bikes": 30,
+      "qty_per_bike": 1,
+      "units_needed": 30,
+      "ship_in_days": 10,
+      "late_penalty": "yes"
+    },
+    {
+      "order_id": "O-1044",
+      "customer": "Main Street Bikes",
+      "model": "Cargo E",
+      "bikes": 30,
+      "qty_per_bike": 1,
+      "units_needed": 30,
+      "ship_in_days": 18,
+      "late_penalty": "no"
+    },
+    {
+      "order_id": "O-1048",
+      "customer": "Bayside Cycle Co.",
+      "model": "Cargo E",
+ ... [161 more characters]
+[tokens] analyst: in=2592 out=206
+
+=== HANDOFF  analyst -> supply tool  |  call 3/10: check_coverage ===
+{
+  "part_id": "BP-48",
+  "arrivals": [
+    {
+      "qty": 150,
+      "day": 6
+    }
+  ]
+}
+
+=== HANDOFF  supply tool -> analyst  |  result of call 3 ===
+{
+  "part_id": "BP-48",
+  "on_hand": 35,
+  "arrivals_used": [
+    {
+      "qty": 150,
+      "day": 6
+    }
+  ],
+  "total_supply": 185,
+  "total_units_needed": 80,
+  "orders": [
+    {
+      "order_id": "O-1042",
+      "customer": "Blue Ridge Bike Shop",
+      "units_needed": 30,
+      "ship_in_days": 10,
+      "late_penalty": "yes",
+      "covered": true,
+      "units_short": 0,
+      "first_ship_day": 10,
+      "days_late": 0,
+      "units_never_covered": 0
+    },
+    {
+      "order_id": "O-1044",
+      "customer": "Main Street Bikes",
+      "units_needed": 30,
+      "ship_in_days": 18,
+      ... [473 more characters]
+[tokens] analyst: in=3294 out=127
+
+=== HANDOFF  analyst -> coordinator  |  brief ===
+{
+  "part_id": "BP-48",
+  "what_changed": "No change: PO-7790 (150 BP-48 battery packs) is confirmed to arrive on its already-scheduled date, 6 days from today.",
+  "orders_at_risk": [],
+  "options": [],
+  "decisions_for_a_person": [],
+  "supplier_questions": []
+}
+
+##### STEP 2: customer notices (0 order(s) at risk) #####
+No orders at risk; skipping customer notices.
+
+##### STEP 3: supplier reply #####
+
+=== HANDOFF  coordinator -> supplier_writer  |  inputs with customer names removed ===
+Supplier's email:
+
+From: Brian Foley <b.foley@keystonebattery.example>
+To: Purchasing <purchasing@brookfieldbikes.example>
+Subject: PO-7790 - BP-48 battery packs - shipped on schedule
+
+Hello,
+
+Good news: PO-7790 for 150 BP-48 battery packs left our warehouse today and is
+on track to arrive on the scheduled date. No action is needed on your side.
+
+Best regards,
+Brian Foley
+Order Desk, Keystone Battery Co.
+
+
+Analyst's brief (JSON):
+{
+  "part_id": "BP-48",
+  "what_changed": "No change: PO-7790 (150 BP-48 battery packs) is confirmed to arrive on its already-scheduled date, 6 days from today.",
+  "orders_at_risk": [],
+  "options": [],
+  "decisions_for_a_person": [],
+  "supplier_questions": []
+}
+[tokens] supplier_writer: in=605 out=13
+
+=== HANDOFF  supplier_writer -> coordinator  |  draft ===
+NO REPLY NEEDED
+
+=== HANDOFF  coordinator -> person  |  no reply needed; nothing saved ===
+{
+  "file": null,
+  "recipient": "supplier",
+  "draft": "NO REPLY NEEDED",
+  "needs_a_person": false,
+  "reasons": []
+}
+
+##### SUMMARY #####
+Drafts saved: 0
+  (supplier reply not saved: NO REPLY NEEDED)
+Drafts marked for a person: 0
+Decisions for a person: 0
+
+=== TOKENS BY SPECIALIST ===
+specialist         calls     input    output     total
+analyst                3      7571       627      8198
+supplier_writer        1       605        13       618
+all                    4      8176       640      8816
+Total tokens: 8816 (input 8176, output 640)

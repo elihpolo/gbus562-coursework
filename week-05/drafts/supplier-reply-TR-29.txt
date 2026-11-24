@@ -1,0 +1,21 @@
+To: supplier
+Saved: 2026-11-23 21:22
+Status: No flags. A person still checks it before it is sent.
+Reviewer: APPROVE after 0 revision(s)
+------------------------------------------------------------
+Subject: RE: PO-7795 - TR-29 tires - two options, please choose
+
+Hi Lisa,
+
+Thanks for flagging this. To confirm our understanding of the impact:
+
+- Option 1 (160 on day 8, 240 on day 22): leaves us short 40 units against one order's ship date on day 9, as the balance wouldn't be ready until day 22 — a significant delay for that order.
+- Option 2 (400 together on day 12): covers that same order in full, with only a 3-day delay versus its day-9 ship date.
+
+Given this, Option 2 looks like it minimizes disruption on our end, but we want to confirm internally before committing. We'll get back to you with our decision within your two-business-day window.
+
+In the meantime, is there any way to expedite even a partial shipment sooner than day 12, or to get more than 160 units out on the original day-8 date? Either would help reduce the delay further.
+
+Thanks for your flexibility on this.
+
+Purchasing, Brookfield Bicycle Company

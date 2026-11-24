@@ -1,0 +1,243 @@
+
+=== HANDOFF  coordinator -> all specialists  |  company folder and CSV columns found from the header rows ===
+{
+  "company_folder": "C:\\Users\\eli\\GBUS562\\gbus562-coursework\\week-05\\copperline-coffee",
+  "drafts_folder": "C:\\Users\\eli\\GBUS562\\gbus562-coursework\\week-05\\drafts\\copperline-coffee",
+  "columns": {
+    "orders.csv": {
+      "late_penalty": "late_penalty",
+      "contact_email": "contact_email",
+      "customer": "customer",
+      "order_id": "order_id",
+      "product": "product",
+      "ship_day": "ship_by_day",
+      "quantity": "units"
+    },
+    "bill-of-materials.csv": {
+      "part_id": "part_id",
+      "per_unit": "per_unit",
+      "product": "product"
+    },
+    "parts.csv": {
+      "part_id": "part_id",
+      "description": "description",
+      "on_hand": "on_hand",
+      "supplier": "supplier"
+    },
+    "inbound.csv": {
+      "arrives_in_days": "arrives_in_days",
+      "po_number": "po_number",
+      "part_id": "part_id",
+      "supplier": "supplier",
+      "quantity": "qty"
+    },
+    "suppliers.csv": {
+      "contact_email": "contact_email",
+      "contact_name": "contact_name",
+      "part_id": "part_id",
+      "supplier": "supplier"
+    }
+  }
+}
+
+##### STEP 1: supply analyst #####
+
+=== HANDOFF  coordinator -> analyst  |  supplier email ===
+From: Owen Brady <o.brady@pelhamfittings.example>
+To: Purchasing <purchasing@copperlinecoffee.example>
+Subject: Plant maintenance closure - PO-5540 not affected
+
+Hello,
+
+A quick note for your planning: our plant will close for one week of annual
+maintenance, starting four weeks from today.
+
+Your open order, PO-5540 for 60 SW-3 steam wands, ships before the closure
+and will arrive on the scheduled date. No action is needed on your side.
+
+Kind regards,
+Owen Brady
+Customer Care, Pelham Fittings
+
+[tokens] analyst: in=1708 out=164
+
+=== HANDOFF  analyst -> supply tool  |  call 1/10: get_part ===
+{
+  "part_id": "SW-3"
+}
+
+=== HANDOFF  supply tool -> analyst  |  result of call 1 ===
+{
+  "part_id": "SW-3",
+  "description": "Steam wand",
+  "supplier": "Pelham Fittings",
+  "on_hand": 40,
+  "scheduled_shipments": [
+    {
+      "po_number": "PO-5540",
+      "supplier": "Pelham Fittings",
+      "qty": 60,
+      "arrives_in_days": 11
+    }
+  ],
+  "products_using_part": [
+    {
+      "product": "Cafe Duo",
+      "parts_per_unit": 1
+    }
+  ]
+}
+
+=== HANDOFF  analyst -> supply tool  |  call 2/10: get_orders_for_part ===
+{
+  "part_id": "SW-3"
+}
+
+=== HANDOFF  supply tool -> analyst  |  result of call 2 ===
+{
+  "part_id": "SW-3",
+  "orders": [
+    {
+      "order_id": "O-2202",
+      "customer": "Harbor Hotel Group",
+      "product": "Cafe Duo",
+      "units_ordered": 15,
+      "parts_per_unit": 1,
+      "units_needed": 15,
+      "ship_in_days": 9,
+      "late_penalty": "no"
+    },
+    {
+      "order_id": "O-2204",
+      "customer": "Kettle & Crumb Bakery",
+      "product": "Cafe Duo",
+      "units_ordered": 10,
+      "parts_per_unit": 1,
+      "units_needed": 10,
+      "ship_in_days": 15,
+      "late_penalty": "no"
+    },
+    {
+      "order_id": "O-2208",
+      "customer": "Northside Roasters",
+ ... [200 more characters]
+[tokens] analyst: in=2489 out=210
+
+=== HANDOFF  analyst -> supply tool  |  call 3/10: check_coverage ===
+{
+  "part_id": "SW-3",
+  "arrivals": [
+    {
+      "qty": 60,
+      "day": 11
+    }
+  ]
+}
+
+=== HANDOFF  supply tool -> analyst  |  result of call 3 ===
+{
+  "part_id": "SW-3",
+  "on_hand": 40,
+  "arrivals_used": [
+    {
+      "qty": 60,
+      "day": 11
+    }
+  ],
+  "total_supply": 100,
+  "total_units_needed": 37,
+  "orders": [
+    {
+      "order_id": "O-2202",
+      "customer": "Harbor Hotel Group",
+      "units_needed": 15,
+      "ship_in_days": 9,
+      "late_penalty": "no",
+      "covered": true,
+      "units_short": 0,
+      "first_ship_day": 9,
+      "days_late": 0,
+      "units_never_covered": 0
+    },
+    {
+      "order_id": "O-2204",
+      "customer": "Kettle & Crumb Bakery",
+      "units_needed": 10,
+      "ship_in_days": 15,
+      "l... [472 more characters]
+[tokens] analyst: in=3193 out=138
+
+=== HANDOFF  analyst -> coordinator  |  brief (full) ===
+{
+  "part_id": "SW-3",
+  "what_changed": "No schedule change: PO-5540 (60 units) is confirmed to still arrive in 11 days, ahead of the supplier's one-week maintenance closure starting in 28 days.",
+  "orders_at_risk": [],
+  "options": [],
+  "decisions_for_a_person": [],
+  "supplier_questions": []
+}
+
+##### STEP 2: customer notices (0 order(s) at risk) #####
+No orders at risk; skipping customer notices.
+
+##### STEP 3: supplier reply #####
+
+=== HANDOFF  coordinator -> supplier_writer  |  inputs with customer names removed ===
+Supplier's email:
+
+From: Owen Brady <o.brady@pelhamfittings.example>
+To: Purchasing <purchasing@copperlinecoffee.example>
+Subject: Plant maintenance closure - PO-5540 not affected
+
+Hello,
+
+A quick note for your planning: our plant will close for one week of annual
+maintenance, starting four weeks from today.
+
+Your open order, PO-5540 for 60 SW-3 steam wands, ships before the closure
+and will arrive on the scheduled date. No action is needed on your side.
+
+Kind regards,
+Owen Brady
+Customer Care, Pelham Fittings
+
+
+Analyst's brief (JSON):
+{
+  "part_id": "SW-3",
+  "what_changed": "No schedule change: PO-5540 (60 units) is confirmed to still arrive in 11 days, ahead of the supplier's one-week maintenance closure starting in 28 days.",
+  "orders_at_risk": [],
+  "options": [],
+  "decisions_for_a_person": [],
+  "supplier_questions": []
+}
+[tokens] supplier_writer: in=633 out=13
+
+=== HANDOFF  supplier_writer -> coordinator  |  draft ===
+NO REPLY NEEDED
+
+FINAL DRAFT TO SUPPLIER
+NO REPLY NEEDED
+Marked for a person: no
+
+=== HANDOFF  coordinator -> person  |  no reply needed; nothing saved ===
+{
+  "file": null,
+  "recipient": "supplier",
+  "draft": "NO REPLY NEEDED",
+  "needs_a_person": false,
+  "reasons": []
+}
+
+##### SUMMARY #####
+Drafts saved: 0
+  (supplier reply not saved: NO REPLY NEEDED)
+Drafts marked for a person: 0
+Decisions for a person: 0
+
+=== TOKENS BY SPECIALIST ===
+specialist         calls     input    output     total
+analyst                3      7390       512      7902
+supplier_writer        1       633        13       646
+all                    4      8023       525      8548
+Total tokens: 8548 (input 8023, output 525)

@@ -1,0 +1,33 @@
+
+=== HANDOFF  coordinator -> orchestrator  |  supplier email ===
+From: Brian Foley <b.foley@keystonebattery.example>
+To: Purchasing <purchasing@brookfieldbikes.example>
+Subject: PO-7790 - BP-48 battery packs - shipped on schedule
+
+Hello,
+
+Good news: PO-7790 for 150 BP-48 battery packs left our warehouse today and is
+on track to arrive on the scheduled date. No action is needed on your side.
+
+Best regards,
+Brian Foley
+Order Desk, Keystone Battery Co.
+
+[tokens] orchestrator: in=1290 out=209
+
+[orchestrator says] This email indicates PO-7790 is shipping on schedule with no disruption — there's no impact on quantity, timing, or customer orders, so no analysis or drafting is needed.
+
+##### CHOICE 1/10: finish({"summary": "Keystone Battery Co. confirmed PO-7790 (150 BP-48 battery packs) shipped on schedule and will arrive as planned. No disruption to supply, no customer orders at risk, and no action required. No drafts were needed.", "person_must_decide": false}) #####
+
+##### SUMMARY #####
+Orchestrator's summary: Keystone Battery Co. confirmed PO-7790 (150 BP-48 battery packs) shipped on schedule and will arrive as planned. No disruption to supply, no customer orders at risk, and no action required. No drafts were needed.
+A person must make a decision: no
+Drafts saved: 0
+Drafts marked for a person: 0
+Decisions for a person: 0
+
+=== TOKENS BY SPECIALIST ===
+specialist         calls     input    output     total
+orchestrator           1      1290       209      1499
+all                    1      1290       209      1499
+Total tokens: 1499 (input 1290, output 209)

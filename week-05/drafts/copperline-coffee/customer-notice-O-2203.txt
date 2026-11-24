@@ -1,0 +1,16 @@
+To: customer
+Saved: 2026-11-23 21:49
+Status: NEEDS A PERSON: the order has a late penalty
+Reviewer: APPROVE after 0 revision(s)
+------------------------------------------------------------
+Dear Elm State University Dining,
+
+We're writing to update you on order O-2203 for 50 units of the Cafe One. The order is now expected to ship 1 day later than originally planned.
+
+We apologize for the delay. This was caused by a delay in a part from one of our suppliers.
+
+We appreciate your patience and understanding, and we will keep you informed if anything further changes with your order timeline.
+
+Thank you for your continued partnership.
+
+Customer Service, Copperline Coffee Machines

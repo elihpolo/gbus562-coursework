@@ -10,3 +10,4 @@ This repository is for my GBUS 562 AI Language Models course. I'm currently work
 2. Week 2: I used Claude Code to build a browser-based Prompt Lab, then used it to test four prompting techniques on tasks for Wildframe Coffee Roasters. The project includes a writeup and the exported conversations.
 3. Week 3: a RAG tool that answers questions from Copperline Manufacturing's finance documents, built with Claude Code.
 4. Week 4: an AI agent that prepares replies to HR emails using tools from an MCP server, built with Claude Code.
+5. Week 5: a team of AI agents that prepares a bicycle maker's response to supplier emails, built with Claude Code.

@@ -1,0 +1,75 @@
+
+=== HANDOFF  coordinator -> all specialists  |  company folder and CSV columns found from the header rows ===
+{
+  "company_folder": "C:\\Users\\eli\\GBUS562\\gbus562-coursework\\week-05\\copperline-coffee",
+  "drafts_folder": "C:\\Users\\eli\\GBUS562\\gbus562-coursework\\week-05\\drafts\\copperline-coffee",
+  "columns": {
+    "orders.csv": {
+      "late_penalty": "late_penalty",
+      "contact_email": "contact_email",
+      "customer": "customer",
+      "order_id": "order_id",
+      "product": "product",
+      "ship_day": "ship_by_day",
+      "quantity": "units"
+    },
+    "bill-of-materials.csv": {
+      "part_id": "part_id",
+      "per_unit": "per_unit",
+      "product": "product"
+    },
+    "parts.csv": {
+      "part_id": "part_id",
+      "description": "description",
+      "on_hand": "on_hand",
+      "supplier": "supplier"
+    },
+    "inbound.csv": {
+      "arrives_in_days": "arrives_in_days",
+      "po_number": "po_number",
+      "part_id": "part_id",
+      "supplier": "supplier",
+      "quantity": "qty"
+    },
+    "suppliers.csv": {
+      "contact_email": "contact_email",
+      "contact_name": "contact_name",
+      "part_id": "part_id",
+      "supplier": "supplier"
+    }
+  }
+}
+
+=== HANDOFF  coordinator -> orchestrator  |  supplier email ===
+From: Owen Brady <o.brady@pelhamfittings.example>
+To: Purchasing <purchasing@copperlinecoffee.example>
+Subject: Plant maintenance closure - PO-5540 not affected
+
+Hello,
+
+A quick note for your planning: our plant will close for one week of annual
+maintenance, starting four weeks from today.
+
+Your open order, PO-5540 for 60 SW-3 steam wands, ships before the closure
+and will arrive on the scheduled date. No action is needed on your side.
+
+Kind regards,
+Owen Brady
+Customer Care, Pelham Fittings
+
+[tokens] orchestrator: in=1304 out=371
+
+##### CHOICE 1/10: finish({"summary": "Pelham Fittings notified of a one-week plant maintenance closure starting in four weeks. They confirmed our open order PO-5540 (60 SW-3 steam wands) ships before the closure and will arrive on schedule, with no impact to quantity or timing. No customer orders are at risk and no supplier reply is needed. No further action required.", "person_must_decide": false}) #####
+
+##### SUMMARY #####
+Orchestrator's summary: Pelham Fittings notified of a one-week plant maintenance closure starting in four weeks. They confirmed our open order PO-5540 (60 SW-3 steam wands) ships before the closure and will arrive on schedule, with no impact to quantity or timing. No customer orders are at risk and no supplier reply is needed. No further action required.
+A person must make a decision: no
+Drafts saved: 0
+Drafts marked for a person: 0
+Decisions for a person: 0
+
+=== TOKENS BY SPECIALIST ===
+specialist         calls     input    output     total
+orchestrator           1      1304       371      1675
+all                    1      1304       371      1675
+Total tokens: 1675 (input 1304, output 371)
